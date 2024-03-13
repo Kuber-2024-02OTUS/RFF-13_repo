@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: homework
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: webserver
+        image: nginx:1.25.4
+        workingDir: /homework
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh","-c","/bin/rm -f /homework/index.html"]
+        ports:
+        - name: http
+          protocol: TCP
+          containerPort: 8000
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /homework/index.html
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: workdir
+          mountPath: /homework
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      initContainers:
+      - name: install
+        image: busybox:1.28
+        command:
+        - wget
+        - "-O"
+        - "/init/index.html"
+        - http://info.cern.ch
+        volumeMounts:
+        - name: workdir
+          mountPath: /init
+      volumes:
+      - name: workdir
+        emptyDir:
+          sizeLimit: 1Mi
+      - name: nginx-config
+        configMap:
+          name: nginx-config
