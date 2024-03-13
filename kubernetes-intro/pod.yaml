@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webserver
+  namespace: homework
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: webserver
+    image: nginx:1.25.4
+    workingDir: /homework
+    lifecycle:
+      preStop:
+        exec:
+          command: ["/bin/sh","-c","/bin/rm -f /homework/index.html"]
+    ports:
+    - name: http
+      protocol: TCP
+      containerPort: 8000
+    volumeMounts:
+    - name: workdir
+      mountPath: /homework
+  initContainers:
+  - name: install
+    image: busybox:1.28
+    command:
+    - wget
+    - "-O"
+    - "/init/index.html"
+    - http://info.cern.ch
+    volumeMounts:
+    - name: workdir
+      mountPath: /init
+  volumes:
+  - name: workdir
+    emptyDir:
+      sizeLimit: 1Mi
