@@ -21,6 +21,8 @@ spec:
     volumeMounts:
     - name: workdir
       mountPath: /homework
+    - name: nginx-config
+      mountPath: /etc/nginx/conf.d
   initContainers:
   - name: install
     image: busybox:1.28
@@ -36,3 +38,6 @@ spec:
   - name: workdir
     emptyDir:
       sizeLimit: 1Mi
+  - name: nginx-config
+    configMap:
+      name: nginx-config
