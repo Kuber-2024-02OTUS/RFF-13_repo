@@ -42,10 +42,9 @@ spec:
           protocol: TCP
           containerPort: 8000
         readinessProbe:
-          exec:
-            command:
-            - cat
-            - /homework/index.html
+          httpGet:
+            path: /index.html
+            port: 8000
           initialDelaySeconds: 5
           periodSeconds: 5
         volumeMounts:
