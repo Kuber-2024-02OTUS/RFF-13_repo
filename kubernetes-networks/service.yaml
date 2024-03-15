@@ -6,11 +6,13 @@ metadata:
   name: nginx-service
   namespace: homework
 spec:
+  selector:
+    app: nginx
   ports:
   - name: nginx-http
     port: 80
     protocol: TCP
     targetPort: http
-  selector:
-    app.kubernetes.io/name: proxy
+#  selector:
+#    app.kubernetes.io/name: proxy
   type: ClusterIP
