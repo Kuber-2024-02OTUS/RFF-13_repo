@@ -4,6 +4,11 @@
 
 ### minikube
 
+Включить Ingress в minikube:
+```bash
+minikube addons enable ingress
+```
+
 Получть ссылку, по которой доступен Ingress:
 ```bash
 minikube service list
