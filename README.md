@@ -13,3 +13,8 @@ minikube addons enable ingress
 ```bash
 minikube service list
 ```
+
+Присвоить метку ноде:
+```bash
+kubectl label nodes minikube homework=true
+```
