@@ -18,3 +18,24 @@ minikube service list
 ```bash
 kubectl label nodes minikube homework=true
 ```
+
+## Команды для домашних работ
+
+### ДЗ№ 4
+
+Запуск зомашнего задания:
+```bash
+minikube start
+minikube addons enable ingress
+kubectl label nodes minikube homework=true
+kubectl apply -f namespace.yaml -f cm.yaml -f configmap.yaml -f deployment.yaml -f service.yaml -f ingress.yaml -f pvc.yaml
+
+minikube service list
+```
+
+Проверка работоспособности домашнего задания:
+```bash
+curl http://homework.otus/homepage
+curl http://homework.otus/conf/color
+```
+
