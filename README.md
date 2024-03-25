@@ -23,7 +23,7 @@ kubectl label nodes minikube homework=true
 
 ### ДЗ№ 4
 
-Запуск зомашнего задания:
+Запуск домашнего задания:
 ```bash
 minikube start
 minikube addons enable ingress
@@ -38,5 +38,11 @@ minikube service list
 curl http://homework.otus/homepage
 curl http://homework.otus/conf/color
 kubectl get po -n homework
+```
+
+### ДЗ№ 5
+
+```bash
+kubectl apply -f clusterrole_metrics.yaml -f sa_monitoring.yaml -f rb_monitoring.yaml
 ```
 
