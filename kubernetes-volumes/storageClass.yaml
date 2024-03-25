@@ -6,8 +6,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: k8s.io/minikube-hostpath
 reclaimPolicy: Retain # default value is Delete
-allowVolumeExpansion: true
 mountOptions:
   - discard # this might enable UNMAP / TRIM at the block storage layer
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 
