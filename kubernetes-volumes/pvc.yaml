@@ -4,6 +4,7 @@ metadata:
   name: nginx-claim
   namespace: homework
 spec:
+  storageClassName: "low-latency"
   accessModes:
     - ReadWriteOnce
   volumeMode: Filesystem
