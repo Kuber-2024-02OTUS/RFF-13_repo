@@ -37,5 +37,6 @@ minikube service list
 ```bash
 curl http://homework.otus/homepage
 curl http://homework.otus/conf/color
+kubectl get po -n homework
 ```
 

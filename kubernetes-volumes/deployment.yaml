@@ -67,8 +67,8 @@ spec:
           mountPath: /init
       volumes:
       - name: workdir
-        emptyDir:
-          sizeLimit: 1Mi
+        persistentVolumeClaim:
+          claimName: nginx-claim
       - name: nginx-config
         configMap:
           name: nginx-config
