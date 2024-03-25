@@ -44,5 +44,6 @@ kubectl get po -n homework
 
 ```bash
 kubectl apply -f clusterrole_metrics.yaml -f sa_monitoring.yaml -f rb_monitoring.yaml
+kubectl apply -f sa_cd.yaml -f rb_cd.yaml
 ```
 
