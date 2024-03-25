@@ -20,6 +20,7 @@ spec:
       labels:
         app: nginx
     spec:
+      serviceAccountName: monitoring
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
