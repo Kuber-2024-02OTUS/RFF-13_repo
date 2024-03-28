@@ -52,3 +52,9 @@ kubectl apply -f sa_cd.yaml -f rb_cd.yaml
 kubectl create token cd --namespace homework --duration 1440m
 ```
 
+Запуск kubectl со своим конфигурационным файлом:
+```bash
+export KUBECONFIG=/home/user/homework-5/kubeconfig
+kubectl config get-contexts
+```
+
