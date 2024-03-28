@@ -47,3 +47,8 @@ kubectl apply -f clusterrole_metrics.yaml -f sa_monitoring.yaml -f rb_monitoring
 kubectl apply -f sa_cd.yaml -f rb_cd.yaml
 ```
 
+Создание токена для сервисного аккаунта cd с временем действия 1 день:
+```bash
+kubectl create token cd --namespace homework --duration 1440m
+```
+
