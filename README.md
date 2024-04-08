@@ -74,3 +74,18 @@ curl http://homework.otus/metrics.html
 kubectl get po -n homework
 ```
 
+### ДЗ№ 6
+
+#### Подготовка рабочего окружения
+
+[Установка Helm](https://helm.sh/docs/intro/install/)
+
+```bash
+wget https://get.helm.sh/helm-v3.14.3-linux-amd64.tar.gz
+tar -zxvf helm-v3.14.3-linux-amd64.tar.gz
+mv linux-amd64/helm /usr/local/bin/helm
+rm -rf helm-v3.14.3-linux-amd64.tar.gz linux-amd64
+
+helm help
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
