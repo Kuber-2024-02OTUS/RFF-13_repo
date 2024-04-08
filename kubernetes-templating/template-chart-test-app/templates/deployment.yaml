@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: homework
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      serviceAccountName: monitoring
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: homework
+                operator: In
+                values:
+                - "true"
+      containers:
+      - name: webserver
+        image: nginx:1.25.4
+        workingDir: /homework
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh","-c","/bin/rm -f /homework/index.html"]
+        ports:
+        - name: http
+          protocol: TCP
+          containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: workdir
+          mountPath: /homework
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        - name: additional-data
+          mountPath: /homework/conf/
+      initContainers:
+      - name: get-html
+        image: busybox:1.28
+        command:
+        - wget
+        - "-O"
+        - "/init/index.html"
+        - http://info.cern.ch
+      initContainers:
+      - name: get-metrics
+        image: busybox:1.28
+        command:
+        - wget
+        - "--no-check-certificate"
+        - "--header"
+        - "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IndhQ2E4Q0J1VFlmeXFjdG5aeGt0R3RRbWZjWXdTbFBQZlRlQkk3M3ItMWcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzExNjQxNTgxLCJpYXQiOjE3MTE2Mzc5ODEsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJob21ld29yayIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJtb25pdG9yaW5nIiwidWlkIjoiMjJlM2I4Y2EtYzNjNi00N2M2LTg4MzMtOTFhZDMyZjQ1ODhkIn19LCJuYmYiOjE3MTE2Mzc5ODEsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpob21ld29yazptb25pdG9yaW5nIn0.pcLfxavis4H6F1zJUWPaGIf2vCRDwQk-Ikk3UvFCkvY67KlGkvP0DkShRdP-RuRAyCjeLegHm_tENTuxoL0mOqTUD0vZl_5_fA-xn9TMRF3o6l_3yJ1jJrXzKkAfqmW4Vw5-bWn39hVCefDdyNmJuI04tOei1F4RFB0L9q1ex2ZG65CfVCD3VetpxYbMr3M8ImcuzeT1tVQ3drKFeHhULhSI7A8Jt9FZ9D8_waQMW5EL5KOxkJwCyyZ9AcfNbQtQXxuGSLHXdQrt1SCEdxVgUmBFJzvOCk0MxFlxMQ05J-Db78xDudvwpCabdqKTadLl0f36JYLWPIXxh9i-pfqyTw"
+        - "-O"
+        - "/init/metrics.html"
+        - https://192.168.49.2:8443/metrics
+        volumeMounts:
+        - name: workdir
+          mountPath: /init
+      volumes:
+      - name: workdir
+        persistentVolumeClaim:
+          claimName: nginx-claim
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: additional-data
+        configMap:
+          name: nginx-config-multi-env-files
