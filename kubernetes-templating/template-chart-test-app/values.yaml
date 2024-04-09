@@ -1,10 +1,13 @@
 redis:
   enable: true
 
+nameOverride: ""
+fullnameOverride: ""
+
 deploy:
   replicaCount: 1
 
-image:
+  image:
     repository: nginx
     tag: "1.25.4"
 
@@ -41,6 +44,9 @@ image:
     volumeMounts:
     - name: workdir
       mountPath: /init
+
+ingress:
+  enabled: true
 
 serviceAccountMonitoring:
   create: true

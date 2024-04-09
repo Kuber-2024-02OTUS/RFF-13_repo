@@ -78,7 +78,7 @@ kubectl get po -n homework
 
 #### Подготовка рабочего окружения
 
-[Установка Helm](https://helm.sh/docs/intro/install/)
+[Установка Helm](https://helm.sh/docs/intro/install/):
 
 ```bash
 wget https://get.helm.sh/helm-v3.14.3-linux-amd64.tar.gz
@@ -88,4 +88,9 @@ rm -rf helm-v3.14.3-linux-amd64.tar.gz linux-amd64
 
 helm help
 helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
+Проверка корректности чарта:
+```bash
+helm lint . --with-subcharts
 ```
