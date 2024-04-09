@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "template-chart-test-app.fullname" . }}
   labels:
-    app: nginx
+    {{- include "template-chart-test-app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.deploy.replicaCount }}
   selector:
