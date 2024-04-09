@@ -1,0 +1,7 @@
+replicaCount: 1
+image:
+  tag: latest
+auth:
+  enabled: false
+  clientProtocol: PLAINTEXT
+  interBrokerProtocol: PLAINTEXT

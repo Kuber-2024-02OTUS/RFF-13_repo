@@ -98,3 +98,19 @@ helm install . --generate-name -n homework --create-namespace
 
 helm list --all --all-namespaces
 ```
+
+#### Kafka
+
+Установка helmfile:
+```bash
+wget https://github.com/helmfile/helmfile/releases/download/v0.163.1/helmfile_0.163.1_linux_amd64.tar.gz
+tar -xzf helmfile_0.163.1_linux_amd64.tar.gz
+mv helmfile /usr/bin/
+rm -f LICENSE README-zh_CN.md README.md helmfile_0.163.1_linux_amd64.tar.gz
+```
+
+Применение helmfile:
+```bash
+helmfile init
+helmfile apply
+```
