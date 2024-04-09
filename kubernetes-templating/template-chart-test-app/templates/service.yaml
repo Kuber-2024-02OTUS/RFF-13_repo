@@ -4,7 +4,6 @@ metadata:
   labels:
     app.kubernetes.io/name: proxy
   name: {{ include "template-chart-test-app.fullname" . }}
-  namespace: homework
 spec:
   selector:
     app: nginx
