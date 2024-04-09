@@ -1,7 +1,9 @@
+{{- if .Values.pvc.create -}}
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: low-latency
+  name: {{ .Values.pvc.storageClassName }}
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: k8s.io/minikube-hostpath
@@ -9,4 +11,4 @@ reclaimPolicy: Retain # default value is Delete
 mountOptions:
   - discard # this might enable UNMAP / TRIM at the block storage layer
 volumeBindingMode: Immediate
-
+{{- end }}

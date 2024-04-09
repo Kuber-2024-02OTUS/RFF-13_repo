@@ -1,13 +1,16 @@
+{{- if .Values.serviceAccountCd.create -}}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: homework-admin-cd
+  name: {{ include "template-chart-test-app.fullname" . }}-admin-cd-rb
   namespace: homework
 subjects:
   - kind: ServiceAccount
-    name: cd
+    name: {{ include "template-chart-test-app.fullname" . }}-cd
     namespace: homework
 roleRef:
   kind: ClusterRole
   name: admin
   apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,7 +1,10 @@
+{{- if .Values.serviceAccountMonitoring.create -}}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: metrics-clusterrole
+  name: {{ include "template-chart-test-app.fullname" . }}-metrics-clusterrole
 rules:
   - nonResourceURLs: ["/metrics"]
     verbs: ["get"]
+{{- end }}

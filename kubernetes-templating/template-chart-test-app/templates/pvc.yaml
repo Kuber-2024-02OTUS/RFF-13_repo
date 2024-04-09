@@ -1,14 +1,16 @@
+{{- if .Values.pvc.create -}}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nginx-claim
   namespace: homework
 spec:
-  storageClassName: "low-latency"
+  storageClassName: {{ .Values.pvc.storageClassName }}
   accessModes:
     - ReadWriteOnce
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 100Mi
-
+      storage: {{ .Values.pvc.storage }}
+{{- end }}

@@ -3,14 +3,14 @@ kind: Service
 metadata:
   labels:
     app.kubernetes.io/name: proxy
-  name: nginx-service
+  name: {{ include "template-chart-test-app.fullname" . }}
   namespace: homework
 spec:
   selector:
     app: nginx
   ports:
   - name: nginx-http
-    port: 80
+    port: {{ .Values.service.port }}
     protocol: TCP
     targetPort: http
-  type: ClusterIP
+  type: {{ .Values.service.type }}
