@@ -4,7 +4,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ include "template-chart-test-app.fullname" . }}-metrics-crb
-  namespace: homework
+#  namespace: homework
 subjects:
   - kind: ServiceAccount
     name: {{ include "template-chart-test-app.fullname" . }}-monitoring

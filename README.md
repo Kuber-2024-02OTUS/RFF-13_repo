@@ -95,4 +95,6 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm lint . --with-subcharts
 helm install . --dry-run --generate-name -n homework
 helm install . --generate-name -n homework --create-namespace
+
+helm list --all --all-namespaces
 ```
