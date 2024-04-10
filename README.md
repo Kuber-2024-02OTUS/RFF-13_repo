@@ -127,6 +127,8 @@ helmfile apply
 
 #### Выполнение заданий
 
+##### Настройка Nginx
+
 Запуск домашнего задания:
 ```bash
 minikube start
@@ -147,4 +149,15 @@ curl http://homework.otus/metrics
 Удаление всех ресурсов из namespace:
 ```bash
 kubectl delete all --all -n homework
+```
+
+##### Установка Prometheus-operator
+
+В соответствии с [официальной документацией](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/getting-started.md):
+
+```bash
+LATEST=$(curl -s https://api.github.com/repos/prometheus-operator/prometheus-operator/releases/latest | jq -cr .tag_name)
+curl -sL https://github.com/prometheus-operator/prometheus-operator/releases/download/${LATEST}/bundle.yaml | kubectl create -f -
+
+kubectl wait --for=condition=Ready pods -l  app.kubernetes.io/name=prometheus-operator -n default
 ```
