@@ -74,3 +74,43 @@ curl http://homework.otus/metrics.html
 kubectl get po -n homework
 ```
 
+### ДЗ№ 6
+
+#### Подготовка рабочего окружения
+
+[Установка Helm](https://helm.sh/docs/intro/install/):
+
+```bash
+wget https://get.helm.sh/helm-v3.14.3-linux-amd64.tar.gz
+tar -zxvf helm-v3.14.3-linux-amd64.tar.gz
+mv linux-amd64/helm /usr/local/bin/helm
+rm -rf helm-v3.14.3-linux-amd64.tar.gz linux-amd64
+
+helm help
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
+Проверка корректности чарта и установка:
+```bash
+helm lint . --with-subcharts
+helm install . --dry-run --generate-name -n homework
+helm install . --generate-name -n homework --create-namespace
+
+helm list --all --all-namespaces
+```
+
+#### Kafka
+
+Установка helmfile:
+```bash
+wget https://github.com/helmfile/helmfile/releases/download/v0.163.1/helmfile_0.163.1_linux_amd64.tar.gz
+tar -xzf helmfile_0.163.1_linux_amd64.tar.gz
+mv helmfile /usr/bin/
+rm -f LICENSE README-zh_CN.md README.md helmfile_0.163.1_linux_amd64.tar.gz
+```
+
+Применение helmfile:
+```bash
+helmfile init
+helmfile apply
+```

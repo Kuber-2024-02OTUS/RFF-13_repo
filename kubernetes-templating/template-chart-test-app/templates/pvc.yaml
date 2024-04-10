@@ -1,0 +1,15 @@
+{{- if .Values.pvc.create -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-claim
+spec:
+  storageClassName: {{ .Values.pvc.storageClassName }}
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.pvc.storage }}
+{{- end }}

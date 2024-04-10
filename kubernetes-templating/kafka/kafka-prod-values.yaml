@@ -1,0 +1,6 @@
+replicaCount: 5
+image:
+  tag: 3.5.2
+auth:
+  interBrokerProtocol: SASL_PLAINTEXT
+  clientProtocol: SASL_PLAINTEXT
