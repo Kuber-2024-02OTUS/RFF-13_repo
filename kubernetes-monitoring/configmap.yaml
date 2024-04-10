@@ -19,6 +19,7 @@ data:
         
         location = /metrics {
             stub_status;
+            allow 127.0.0.1;
         }
 
 
