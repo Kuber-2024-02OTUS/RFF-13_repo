@@ -133,7 +133,7 @@ helmfile apply
 ```bash
 minikube start
 minikube addons enable ingress
-kubectl apply -f namespace.yaml -f configmap.yaml -f deployment.yaml -f service.yaml -f ingress.yaml
+kubectl apply -f namespace.yaml -f configmap.yaml -f deployment.yaml -f service.yaml -f ingress.yaml -f service-monitor.yaml
 
 minikube service list
 ```
@@ -143,7 +143,6 @@ minikube service list
 kubectl get po -n homework
 
 curl http://homework.otus/homepage
-curl http://homework.otus/metrics
 ```
 
 Удаление всех ресурсов из namespace:
