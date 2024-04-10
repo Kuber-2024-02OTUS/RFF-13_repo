@@ -13,4 +13,7 @@ spec:
     port: 80
     protocol: TCP
     targetPort: http
+  - name: metrics
+    port: 9113
+    targetPort: 9113
   type: ClusterIP

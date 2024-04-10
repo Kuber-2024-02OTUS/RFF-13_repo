@@ -21,6 +21,12 @@ spec:
         app: nginx
     spec:
       containers:
+      - name: prometheus-exporter
+        image: "nginx/nginx-prometheus-exporter:1.1.0"
+        args: ["-nginx.scrape-uri=http://localhost:8000/metrics"]
+        ports:
+        - name: metrics
+          containerPort: 9113
       - name: webserver
         image: nginx:1.25.4
         workingDir: /homework
