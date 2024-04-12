@@ -114,3 +114,49 @@ rm -f LICENSE README-zh_CN.md README.md helmfile_0.163.1_linux_amd64.tar.gz
 helmfile init
 helmfile apply
 ```
+
+### ДЗ№ 7
+
+#### Задание
+
+* Необходимо создать кастомный образ nginx, отдающий свои метрики на определенном endpoint ( пример из офф документации в разделе ссылок)
+* Установить в кластер Prometheus-operator любым удобным вам способом (рекомендуется ставить или по ссылке из офф документации, либо через helm-чарт)
+* Создать deployment запускающий ваш кастомный nginx образ и service для него
+* Настроить запуск nginx prometheus exporter (отдельным подом или в составе пода с nginx – не принципиально) и сконфигурировать его для сбора метрик с nginx
+* Создать манифест serviceMonitor, описывающий сбор метрик с подов, которые вы создали
+
+#### Выполнение заданий
+
+##### Настройка Nginx
+
+Запуск домашнего задания:
+```bash
+minikube start
+minikube addons enable ingress
+kubectl apply -f namespace.yaml -f configmap.yaml -f deployment.yaml -f service.yaml -f ingress.yaml -f service-monitor.yaml
+
+minikube service list
+```
+
+Проверка работоспособности Nginx (добавить в /etc/hosts соответствующую запись):
+```bash
+kubectl get po -n homework
+
+curl http://homework.otus/homepage
+```
+
+Удаление всех ресурсов из namespace:
+```bash
+kubectl delete all --all -n homework
+```
+
+##### Установка Prometheus-operator
+
+В соответствии с [официальной документацией](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/getting-started.md):
+
+```bash
+LATEST=$(curl -s https://api.github.com/repos/prometheus-operator/prometheus-operator/releases/latest | jq -cr .tag_name)
+curl -sL https://github.com/prometheus-operator/prometheus-operator/releases/download/${LATEST}/bundle.yaml | kubectl create -f -
+
+kubectl wait --for=condition=Ready pods -l  app.kubernetes.io/name=prometheus-operator -n default
+```
