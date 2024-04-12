@@ -1,0 +1,7 @@
+{{- if .Values.serviceAccountMonitoring.create -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "template-chart-test-app.fullname" . }}-monitoring
+{{- end }}

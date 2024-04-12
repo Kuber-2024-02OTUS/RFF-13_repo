@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "template-chart-test-app.fullname" . }}
+  labels:
+    {{- include "template-chart-test-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deploy.replicaCount }}
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      serviceAccountName: {{ include "template-chart-test-app.fullname" . }}-monitoring
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: homework
+                operator: In
+                values:
+                - "true"
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.deploy.image.repository }}:{{ .Values.deploy.image.tag }}"
+        workingDir: /homework
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh","-c","/bin/rm -f /homework/index.html"]
+        ports:
+        - name: http
+          protocol: TCP
+          containerPort: {{ .Values.service.port }}
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: workdir
+          mountPath: /homework
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        - name: additional-data
+          mountPath: /homework/conf/
+      initContainers:
+        {{- toYaml .Values.deploy.initContainers | nindent 8 }}
+      {{- with .Values.deploy.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
