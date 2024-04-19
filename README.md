@@ -166,3 +166,21 @@ kubectl wait --for=condition=Ready pods -l  app.kubernetes.io/name=prometheus-op
 Managed Service for Kubernetes в Yandex.Cloud был создан через [веб-интерфейс](https://console.yandex.cloud/). Узлы были созданы через: Управление узлами --> Создать группу узлов.
 
 Для подключения к кластеру необходимо создать конфигурационный файл. Это делается через утилиту `yc`: [Начало работы с Managed Service for Kubernetes](https://yandex.cloud/ru/docs/managed-kubernetes/quickstart?from=int-console-help-center-or-nav).
+
+S3 Backet создан через [веб-интерфейс](https://console.yandex.cloud/). Про сервисный аккаунт можно прочитать [тут](https://yandex.cloud/ru/docs/storage/s3/). Список ролей [тут](https://yandex.cloud/ru/docs/iam/roles-reference) (storage.uploader, storage.viewer).
+
+Установка Loki:
+```bash
+export HELM_EXPERIMENTAL_OCI=1 && \
+helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/grafana/loki/chart/loki \
+  --version 1.1.2 \
+  --untar
+# В loki/charts/loki-distributed/values.yaml поправить значения
+helm install \
+  --namespace logging \
+  --create-namespace \
+  --set loki-distributed.loki.storageConfig.aws.bucketnames=loki-logs-course \
+  --set loki-distributed.serviceaccountawskeyvalue_generated.accessKeyID=YCAJEJkZG0yT19OE_oOVyGpH1 \
+  --set loki-distributed.serviceaccountawskeyvalue_generated.secretAccessKey=YCO8ItsmqK_tRAwpgPKAmfn6g8zwJkZLgyix4Zmc \
+  loki ./loki/
+```
