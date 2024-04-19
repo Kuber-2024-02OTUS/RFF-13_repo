@@ -160,3 +160,9 @@ curl -sL https://github.com/prometheus-operator/prometheus-operator/releases/dow
 
 kubectl wait --for=condition=Ready pods -l  app.kubernetes.io/name=prometheus-operator -n default
 ```
+
+### ДЗ№ 8
+
+Managed Service for Kubernetes в Yandex.Cloud был создан через [веб-интерфейс](https://console.yandex.cloud/). Узлы были созданы через: Управление узлами --> Создать группу узлов.
+
+Для подключения к кластеру необходимо создать конфигурационный файл. Это делается через утилиту `yc`: [Начало работы с Managed Service for Kubernetes](https://yandex.cloud/ru/docs/managed-kubernetes/quickstart?from=int-console-help-center-or-nav).
