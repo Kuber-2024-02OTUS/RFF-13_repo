@@ -169,18 +169,35 @@ Managed Service for Kubernetes в Yandex.Cloud был создан через [�
 
 S3 Backet создан через [веб-интерфейс](https://console.yandex.cloud/). Про сервисный аккаунт можно прочитать [тут](https://yandex.cloud/ru/docs/storage/s3/). Список ролей [тут](https://yandex.cloud/ru/docs/iam/roles-reference) (storage.uploader, storage.viewer).
 
-Установка Loki:
+Назначить метку infra-ноде:
+```bash
+kubectl label nodes cl1qd6m81k72dk3u4sv4-ereg role=infra
+# Проверить результат
+kubectl get nodes --show-labels
+# Либо
+kubectl describe nodes
+```
+
+Установка [Loki](https://yandex.cloud/ru/docs/managed-kubernetes/operations/applications/loki#helm-install):
 ```bash
 export HELM_EXPERIMENTAL_OCI=1 && \
 helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/grafana/loki/chart/loki \
   --version 1.1.2 \
   --untar
+
 # В loki/charts/loki-distributed/values.yaml поправить значения
-helm install \
+# Установить чарт
+helm upgrade --install \
   --namespace logging \
   --create-namespace \
   --set loki-distributed.loki.storageConfig.aws.bucketnames=loki-logs-course \
   --set loki-distributed.serviceaccountawskeyvalue_generated.accessKeyID=YCAJEJkZG0yT19OE_oOVyGpH1 \
   --set loki-distributed.serviceaccountawskeyvalue_generated.secretAccessKey=YCO8ItsmqK_tRAwpgPKAmfn6g8zwJkZLgyix4Zmc \
   loki ./loki/
+
+# Проверить, что loki установлен на нужные ноды
+kubectl get po -n logging -o wide
 ```
+
+>В файле `values.yaml` указаны значения, которые нужно перенести в loki/charts/loki-distributed/values.yaml.
+
