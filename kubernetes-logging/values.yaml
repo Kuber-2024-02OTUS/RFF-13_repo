@@ -10,17 +10,17 @@ loki:
       s3ForcePathStyle: false
       insecure: false
     auth_enabled: false
-    tolerations: 
-      - key: "node-role"
-        operator: "Equal"
-        value: "infra"
-        effect: "NoSchedule"
+#    tolerations: 
+#      - key: "node-role"
+#        operator: "Equal"
+#        value: "infra"
+#        effect: "NoSchedule"
 
-grafana:
-  enabled: true
+#grafana:
+#  enabled: true
 
-  tolerations:
-    - key: "node-role"
-      operator: "Equal"
-      value: "infra"
-      effect: "NoSchedule"
+#  tolerations:
+#    - key: "node-role"
+#      operator: "Equal"
+#      value: "infra"
+#      effect: "NoSchedule"

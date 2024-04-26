@@ -186,6 +186,7 @@ helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/grafana/loki/chart/loki \
   --untar
 
 # В loki/charts/loki-distributed/values.yaml поправить значения
+# В loki/charts/promtail/values.yaml поправить значения
 # Установить чарт
 helm upgrade --install \
   --namespace logging \
@@ -201,3 +202,24 @@ kubectl get po -n logging -o wide
 
 >В файле `values.yaml` указаны значения, которые нужно перенести в loki/charts/loki-distributed/values.yaml.
 
+Установка Grafana
+```bash
+helm plugin install https://github.com/databus23/helm-diff
+helm plugin list
+
+#helm repo add grafana https://grafana.github.io/helm-charts
+#helm install --values values.yaml loki grafana/loki
+
+cd grafana
+helmfile apply
+
+# Check installation
+kubectl get po --namespace monitoring -o wide
+
+# Get your 'admin' user password by running
+kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+# The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+# grafana.monitoring.svc.cluster.local
+export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+kubectl --namespace monitoring port-forward $POD_NAME 3000
+```
