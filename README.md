@@ -178,44 +178,20 @@ kubectl get nodes --show-labels
 kubectl describe nodes
 ```
 
-Установка [Loki](https://yandex.cloud/ru/docs/managed-kubernetes/operations/applications/loki#helm-install):
+Установка Promtail, Loki, Grafana:
 ```bash
-export HELM_EXPERIMENTAL_OCI=1 && \
-helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/grafana/loki/chart/loki \
-  --version 1.1.2 \
-  --untar
-
-# В loki/charts/loki-distributed/values.yaml поправить значения
-# В loki/charts/promtail/values.yaml поправить значения
-# Установить чарт
-helm upgrade --install \
-  --namespace logging \
-  --create-namespace \
-  --set loki-distributed.loki.storageConfig.aws.bucketnames=loki-logs-course \
-  --set loki-distributed.serviceaccountawskeyvalue_generated.accessKeyID=YCAJEJkZG0yT19OE_oOVyGpH1 \
-  --set loki-distributed.serviceaccountawskeyvalue_generated.secretAccessKey=YCO8ItsmqK_tRAwpgPKAmfn6g8zwJkZLgyix4Zmc \
-  loki ./loki/
-
-# Проверить, что loki установлен на нужные ноды
-kubectl get po -n logging -o wide
+cd loki && helmfile apply; cd ..
+cd promtail && helmfile apply; cd ..
+cd grafana && helmfile apply; cd ..
 ```
 
->В файле `values.yaml` указаны значения, которые нужно перенести в loki/charts/loki-distributed/values.yaml.
-
-Установка Grafana
+Проверить, что поды запущены:
 ```bash
-helm plugin install https://github.com/databus23/helm-diff
-helm plugin list
-
-#helm repo add grafana https://grafana.github.io/helm-charts
-#helm install --values values.yaml loki grafana/loki
-
-cd grafana
-helmfile apply
-
-# Check installation
 kubectl get po --namespace monitoring -o wide
+```
 
+Получение пароля от Grafana
+```bash
 # Get your 'admin' user password by running
 kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 # The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
