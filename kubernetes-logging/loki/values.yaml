@@ -10,7 +10,7 @@ read:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: node-role
+          - key: role
             operator: In
             values:
             - infra
@@ -25,7 +25,7 @@ gateway:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: node-role
+          - key: role
             operator: In
             values:
             - infra
@@ -41,7 +41,7 @@ backend:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: node-role
+          - key: role
             operator: In
             values:
             - infra
@@ -57,7 +57,7 @@ write:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: node-role
+          - key: role
             operator: In
             values:
             - infra
@@ -68,11 +68,12 @@ loki:
   storage:
     type: s3
     bucketNames:
-      chunks: monitoring-loki-chunks
-      ruler: monitoring-loki-ruler
-      admin: monitoring-loki-admin
+      chunks: loki-logs-course
+      ruler: loki-logs-course
+      admin: loki-logs-course
     s3:
-      endpoint: s3.yandexcloud.net
+      endpoint: storage.yandexcloud.net
+      region: ru-central1
       accessKeyId: YCAJEJkZG0yT19OE_oOVyGpH1
       secretAccessKey: YCO8ItsmqK_tRAwpgPKAmfn6g8zwJkZLgyix4Zmc
       s3ForcePathStyle: false
@@ -104,7 +105,7 @@ chunksCache:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: node-role
+          - key: role
             operator: In
             values:
             - infra
@@ -120,7 +121,7 @@ resultsCache:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: node-role
+          - key: role
             operator: In
             values:
             - infra

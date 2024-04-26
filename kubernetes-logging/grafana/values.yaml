@@ -8,7 +8,7 @@ affinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
       - matchExpressions:
-        - key: node-role
+        - key: role
           operator: In
           values:
           - infra
