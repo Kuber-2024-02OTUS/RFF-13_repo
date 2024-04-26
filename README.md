@@ -160,3 +160,42 @@ curl -sL https://github.com/prometheus-operator/prometheus-operator/releases/dow
 
 kubectl wait --for=condition=Ready pods -l  app.kubernetes.io/name=prometheus-operator -n default
 ```
+
+### ДЗ№ 8
+
+Managed Service for Kubernetes в Yandex.Cloud был создан через [веб-интерфейс](https://console.yandex.cloud/). Узлы были созданы через: Управление узлами --> Создать группу узлов.
+
+Для подключения к кластеру необходимо создать конфигурационный файл. Это делается через утилиту `yc`: [Начало работы с Managed Service for Kubernetes](https://yandex.cloud/ru/docs/managed-kubernetes/quickstart?from=int-console-help-center-or-nav).
+
+S3 Backet создан через [веб-интерфейс](https://console.yandex.cloud/). Про сервисный аккаунт можно прочитать [тут](https://yandex.cloud/ru/docs/storage/s3/). Список ролей [тут](https://yandex.cloud/ru/docs/iam/roles-reference) (storage.uploader, storage.viewer).
+
+Назначить метку infra-ноде:
+```bash
+kubectl label nodes cl1qd6m81k72dk3u4sv4-ereg role=infra
+# Проверить результат
+kubectl get nodes --show-labels
+# Либо
+kubectl describe nodes
+```
+
+Установка Promtail, Loki, Grafana:
+```bash
+cd loki && helmfile apply; cd ..
+cd promtail && helmfile apply; cd ..
+cd grafana && helmfile apply; cd ..
+```
+
+Проверить, что поды запущены:
+```bash
+kubectl get po --namespace monitoring -o wide
+```
+
+Получение пароля от Grafana
+```bash
+# Get your 'admin' user password by running
+kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+# The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+# grafana.monitoring.svc.cluster.local
+export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+kubectl --namespace monitoring port-forward $POD_NAME 3000
+```
