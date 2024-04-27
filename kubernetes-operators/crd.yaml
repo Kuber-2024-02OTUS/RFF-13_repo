@@ -9,8 +9,28 @@ spec:
     - name: v1
       served: true
       storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                image:
+                  type: string
+                database:
+                  type: string
+                password:
+                  type: string
+                storage_size:
+                  type: string
+              required:
+              - image
+              - database
+              - password
+              - storage_size
   scope: Namespaced
   names:
     plural: mysqls
-    singular: mysqls
+    singular: mysql
     kind: MySQL
