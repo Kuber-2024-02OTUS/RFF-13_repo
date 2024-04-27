@@ -199,3 +199,35 @@ kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-pass
 export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
 kubectl --namespace monitoring port-forward $POD_NAME 3000
 ```
+
+### ДЗ№ 9
+
+#### Задание
+
+* Создать манифест объекта CustomResourceDefinition со следующими параметрами:
+  * Объект уровня namespace
+  * Api group – otus.homework
+  * Kind – MySQL
+  * Plural name – mysqls
+  * Версия – v1
+* Объект должен иметь следующие обязательные атрибуты и правила их валидации(все поля строковые):
+  * Image – определяет docker-образ для создания
+  * Database – имя базы данных
+  * Password – пароль от БД
+  * Storage_size – размер хранилища под базу
+*Создать манифесты ServiceAccount, ClusterRole и ClusterRoleBinding, описывающий сервис аккаунт с полными правами на доступ к api серверу
+* Создать манифест deployment для оператора, указав созданный ранее ServiceAccount и образ roflmaoinmysoul/mysql-operator:1.0.0
+* Создать манифест кастомного объекта kind: MySQL валидный для применения (см. атрибуты CRD созданного ранее)
+* Применить все манифесты и убедиться, что CRD создался, оператор работает и при создании кастомного ресурса типа MySQL создает Deployment с указанным образом mysql, service для него, PV и PVC. При удалении объекта типа MySQL удаляются все созданные для него ресурсы
+
+#### Задание со *
+
+* Изменить манифест ClusterRole, описав в нем минимальный набор прав доступа необходимые для нашего CRD и убедиться что функциональность не пострадала
+  * Управление сами ресурсом CRD
+  * Создание и удаление ресурсов типа Service, PV, PVC
+
+#### Задание с **
+
+* Создать свой оператор, который будет реализовывать следующий функционал:
+  * При создании в кластере объектов с типом MySQL (mysqls.otus.homework/v1) будет создавать deployment с заданным образом mysql, сервис типа ClusterIP, PV и PVC заданного размера
+  * При удалении объекта с типом MySQL будет удалять ранее созданные ресурсы
