@@ -242,7 +242,7 @@ kubectl apply -f crd.yaml -f cr.yaml -f sa.yaml -f crb.yaml -f deployment.yaml -
 
 ```bash
 # Просмотр созданных ресурсов
-kubectl get pvc,pv,svc,deploy,pods,mysqls,sa
+kubectl get pvc,pv,svc,deploy,pods,mysqls,sa,crd
 
 # Проверка запуска MySQL
 kubectl port-forward $(kubectl get pods | grep mysql | awk '{print $1}') 3306:3306
