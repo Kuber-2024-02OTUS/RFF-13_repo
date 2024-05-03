@@ -232,6 +232,12 @@ kubectl --namespace monitoring port-forward $POD_NAME 3000
   * При создании в кластере объектов с типом MySQL (mysqls.otus.homework/v1) будет создавать deployment с заданным образом mysql, сервис типа ClusterIP, PV и PVC заданного размера
   * При удалении объекта с типом MySQL будет удалять ранее созданные ресурсы
 
+#### Запуск проекта
+
+```bash
+kubectl apply -f crd.yaml -f cr.yaml -f sa.yaml -f crb.yaml -f deployment.yaml -f mysql.yaml
+```
+
 #### Полезные ссылки
 
 [Собственные CRD в Kubernetes](https://habr.com/ru/companies/otus/articles/787790/)
