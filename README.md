@@ -238,6 +238,17 @@ kubectl --namespace monitoring port-forward $POD_NAME 3000
 kubectl apply -f crd.yaml -f cr.yaml -f sa.yaml -f crb.yaml -f deployment.yaml -f mysql.yaml
 ```
 
+#### Проверка работоспособности
+
+```bash
+# Просмотр созданных ресурсов
+kubectl get pvc,pv,svc,deploy,pods,mysqls,sa
+
+# Проверка запуска MySQL
+kubectl port-forward $(kubectl get pods | grep mysql | awk '{print $1}') 3306:3306
+telnet 127.0.0.1 3306
+```
+
 #### Полезные ссылки
 
 [Собственные CRD в Kubernetes](https://habr.com/ru/companies/otus/articles/787790/)
