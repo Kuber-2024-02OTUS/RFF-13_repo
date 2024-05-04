@@ -24,11 +24,4 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "500m"
-        volumeMounts:
-        - name: datadir
-          mountPath: /var/lib/mysql
       restartPolicy: Always
-      volumes:
-      - name: datadir
-        persistentVolumeClaim:
-          claimName: mysql-claim

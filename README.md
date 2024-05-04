@@ -235,7 +235,12 @@ kubectl --namespace monitoring port-forward $POD_NAME 3000
 #### Запуск проекта
 
 ```bash
-kubectl apply -f crd.yaml -f cr.yaml -f sa.yaml -f crb.yaml -f deployment.yaml -f mysql.yaml
+kubectl apply -f cr.yaml -f sa.yaml -f crb.yaml
+kubectl apply -f crd.yaml
+
+cd mysql-operator-shell/ && ./build.sh && cd ..
+
+kubectl apply -f deployment-operator-shell.yaml -f mysql.yaml
 ```
 
 #### Проверка работоспособности
