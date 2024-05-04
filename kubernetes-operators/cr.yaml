@@ -2,9 +2,17 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  namespace: default
   name: crd-manager
 rules:
 - apiGroups: ["otus.homework"]
   resources: ["mysql"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["services","persistentvolumes","persistentvolumeclaims","events"]
+  verbs: ["*"]
+- apiGroups: ["apps","extensions"]
+  resources: ["deployments","deployments/status"]
+  verbs: ["*"]
+- apiGroups: ["events.k8s.io"]
+  resources: ["events"]
+  verbs: ["*"]
