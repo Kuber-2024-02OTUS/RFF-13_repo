@@ -252,9 +252,10 @@ kubectl get pvc,pv,svc,deploy,pods,mysqls,sa,crd
 # Проверка запуска MySQL
 kubectl port-forward $(kubectl get pods | grep mysql | awk '{print $1}') 3306:3306
 telnet 127.0.0.1 3306
+mysql -h 127.0.0.1 -P 3306 -u root -ptest_123
 ```
 
 #### Полезные ссылки
 
 [Собственные CRD в Kubernetes](https://habr.com/ru/companies/otus/articles/787790/)
-
+[Представляем shell-operator: создавать операторы для Kubernetes стало ещё проще](https://habr.com/ru/companies/flant/articles/447442/)
