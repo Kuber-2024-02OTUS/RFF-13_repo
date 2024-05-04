@@ -5,7 +5,7 @@ metadata:
   name: mysql-test
   namespace: default
 spec:
-  image: mysql
+  image: mysql:8.0.37
   database: testdb
   password: secret
   storage_size: 100Mi
