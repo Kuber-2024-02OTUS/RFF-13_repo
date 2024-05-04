@@ -5,7 +5,7 @@ metadata:
   name: crd-manager
 rules:
 - apiGroups: ["otus.homework"]
-  resources: ["mysql"]
+  resources: ["mysqls"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]
   resources: ["services","persistentvolumes","persistentvolumeclaims","events"]
