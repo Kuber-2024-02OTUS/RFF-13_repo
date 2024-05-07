@@ -6,7 +6,7 @@ metadata:
 rules:
 - apiGroups: ["otus.homework"]
   resources: ["mysqls"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  verbs: ["*"]
 - apiGroups: [""]
   resources: ["services","persistentvolumes","persistentvolumeclaims","events"]
   verbs: ["*"]
