@@ -250,7 +250,7 @@ kubectl apply -f deployment-operator-shell.yaml -f mysql.yaml
 kubectl get pvc,pv,svc,deploy,pods,mysqls,sa,crd
 
 # Проверка запуска MySQL
-kubectl port-forward $(kubectl get pods | grep mysql | awk '{print $1}') 3306:3306
+kubectl port-forward $(kubectl get pods | grep mysql-crd | awk '{print $1}') 3306:3306
 telnet 127.0.0.1 3306
 mysql -h 127.0.0.1 -P 3306 -u root -psecret
 ```
