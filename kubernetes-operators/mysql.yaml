@@ -4,8 +4,9 @@ kind: MySQL
 metadata:
   name: mysql-test
   namespace: default
+  finalizers: []
 spec:
   image: mysql:8.0.37
   database: testdb
   password: secret
-  storage_size: 100Mi
+  storage_size: "10"
