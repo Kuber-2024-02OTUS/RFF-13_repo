@@ -1,0 +1,14 @@
+---
+repositories:
+- name: argocd
+  url: https://argoproj.github.io/argo-helm
+
+apiVersions:
+  - monitoring.coreos.com/v1
+
+releases:
+- name: argocd
+  namespace: default
+  chart: argo-helm/argo-cd
+  values: 
+  - values.yaml
