@@ -317,3 +317,13 @@ kubectl exec -it service/argocd-server argocd admin initial-password
 ```bash
 kubectl port-forward service/argocd-server 8090:80
 ```
+
+Выполнение команд argocd в консоли:
+```bash
+kubectl exec -it service/argocd-server /bin/bash
+argocd login localhost:8080
+# Список проектов
+argocd proj list
+# Подробная информация о проекте в yaml-формате
+argocd proj get otus -o yaml
+```
