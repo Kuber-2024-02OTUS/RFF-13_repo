@@ -327,3 +327,9 @@ argocd proj list
 # Подробная информация о проекте в yaml-формате
 argocd proj get otus -o yaml
 ```
+
+Чтобы приложение kubernetes-networks развернулось, необходимо присвоить ноде метку:
+```bash
+kubectl create ns homework
+kubectl label nodes cl1r15d5nku01d90c062-ezyt homework=true
+```
