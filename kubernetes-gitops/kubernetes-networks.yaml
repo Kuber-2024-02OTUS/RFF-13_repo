@@ -1,0 +1,9 @@
+project: otus
+source:
+  repoURL: 'https://github.com/Kuber-2024-02OTUS/RFF-13_repo'
+  path: kubernetes-networks
+  targetRevision: HEAD
+destination:
+  server: 'https://kubernetes.default.svc'
+  namespace: homework
+
