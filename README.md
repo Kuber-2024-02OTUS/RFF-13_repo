@@ -333,3 +333,19 @@ argocd proj get otus -o yaml
 kubectl create ns homework
 kubectl label nodes cl1r15d5nku01d90c062-ezyt homework=true
 ```
+
+### ДЗ№ 11
+
+#### Выполнение задания
+
+Создать ёще одну ноду в кластере.
+
+Убрать taint:
+```bash
+kubectl taint nodes cl1qd6m81k72dk3u4sv4-ereg node-role=infra:NoSchedule-
+```
+
+Установить consul (через VPN):
+```bash
+cd consul && helmfile apply; cd ..
+```
