@@ -368,3 +368,8 @@ kubectl port-forward vault-0 -n vault 8200:8200
 ```
 
 Далее в веб-интерфейсе делаем, что требуется по заданию.
+
+Для создания сервисного аккаунта и роли:
+```bash
+kubectl apply -f sa.yaml -f crb.yaml
+``` 
