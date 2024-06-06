@@ -387,9 +387,20 @@ kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 Создание политики (зайти на vault-0):
 ```bash
 vault login
-vault policy write svc-policy - <<EOH
+vault policy write otus-policy - <<EOH
 path "otus/cred" {
   capabilities = ["read", "list"]
 }
 EOH
+```
+
+Создание роли:
+```bash
+vault write auth/kubernetes/role/otus \
+bound_service_account_names=vault-auth \
+bound_service_account_namespaces=vault \
+policies=otus-policy \
+ttl=72h
+
+vault read auth/kubernetes/role/otus
 ```
