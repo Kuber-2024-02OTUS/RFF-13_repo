@@ -359,7 +359,7 @@ vault operator unseal
 ```
 
 Unseal Key и Initial Root Token нужно сохранить.
-
+- 
 На всех остальных подах vault тоже нужно выполнить команду `vault operator unseal`, введя Unseal Key.
 
 Чтобы зайти в веб-интерфейс, нужно прокинуть порт:
@@ -372,4 +372,24 @@ kubectl port-forward vault-0 -n vault 8200:8200
 Для создания сервисного аккаунта и роли:
 ```bash
 kubectl apply -f sa.yaml -f crb.yaml
-``` 
+```
+
+Включение аутентификации через k8s (зайти на vault-0):
+```bash
+vault auth enable kubernetes
+
+vault write auth/kubernetes/config \
+token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
+kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+```
+
+Создание политики (зайти на vault-0):
+```bash
+vault login
+vault policy write svc-policy - <<EOH
+path "otus/cred" {
+  capabilities = ["read", "list"]
+}
+EOH
+```
