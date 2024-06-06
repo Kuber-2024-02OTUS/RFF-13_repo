@@ -404,3 +404,8 @@ ttl=72h
 
 vault read auth/kubernetes/role/otus
 ```
+
+Установка [External Secrets Operator](https://external-secrets.io/latest/):
+```bash
+cd external-secrets && helmfile apply; cd ..
+```
