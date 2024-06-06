@@ -345,7 +345,26 @@ kubectl label nodes cl1r15d5nku01d90c062-ezyt homework=true
 kubectl taint nodes cl1qd6m81k72dk3u4sv4-ereg node-role=infra:NoSchedule-
 ```
 
-Установить consul (через VPN):
+Установить consul и vault (через VPN):
 ```bash
 cd consul && helmfile apply; cd ..
+cd vault && helmfile apply; cd ..
 ```
+
+Далее необходимо выполнить инициализацию vault:
+```bash
+kubectl exec -it vault-0 -n vault /bin/sh
+vault operator init --key-shares=1 --key-threshold=1
+vault operator unseal
+```
+
+Unseal Key и Initial Root Token нужно сохранить.
+
+На всех остальных подах vault тоже нужно выполнить команду `vault operator unseal`, введя Unseal Key.
+
+Чтобы зайти в веб-интерфейс, нужно прокинуть порт:
+```bash
+kubectl port-forward vault-0 -n vault 8200:8200
+```
+
+Далее в веб-интерфейсе делаем, что требуется по заданию.
