@@ -409,3 +409,8 @@ vault read auth/kubernetes/role/otus
 ```bash
 cd external-secrets && helmfile apply; cd ..
 ```
+
+Создание [SecretStore](https://external-secrets.io/v0.5.2/api-secretstore/):
+```bash
+kubectl apply -f SecretStore.yaml
+```
