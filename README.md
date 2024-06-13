@@ -351,6 +351,8 @@ cd consul && helmfile apply; cd ..
 cd vault && helmfile apply; cd ..
 ```
 
+При возникновении ошибки запуска, если ноды были оффлайн более недели, смотри [тут](https://www.ibm.com/support/pages/consul-pod-fails-start).
+
 Далее необходимо выполнить инициализацию vault:
 ```bash
 kubectl exec -it vault-0 -n vault /bin/sh
@@ -368,6 +370,11 @@ kubectl port-forward vault-0 -n vault 8200:8200
 ```
 
 Далее в веб-интерфейсе делаем, что требуется по заданию.
+```bash
+vault secrets enable -path otus/ kv-v2
+vault kv put otus/cred 'username=otus'
+vault kv patch otus/cred 'password=asajkjkahs'
+```
 
 Для создания сервисного аккаунта и роли:
 ```bash
@@ -413,4 +420,9 @@ cd external-secrets && helmfile apply; cd ..
 Создание [SecretStore](https://external-secrets.io/v0.5.2/api-secretstore/):
 ```bash
 kubectl apply -f SecretStore.yaml
+```
+
+Создание [ExternalSecret](https://external-secrets.io/v0.5.2/api-externalsecret/):
+```bash
+kubectl apply -f ExternalSecret.yaml
 ```
