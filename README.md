@@ -259,3 +259,78 @@ mysql -h 127.0.0.1 -P 3306 -u root -psecret
 
 [Собственные CRD в Kubernetes](https://habr.com/ru/companies/otus/articles/787790/)
 [Представляем shell-operator: создавать операторы для Kubernetes стало ещё проще](https://habr.com/ru/companies/flant/articles/447442/)
+
+
+### ДЗ№ 10
+
+#### Задание
+
+* Данное задание будет выполняться в managed k8s в Yandex cloud
+* Разверните managed Kubernetes cluster в Yandex cloud любым
+удобным вам способом
+* Для кластера создайте 2 пула нод:
+  * Для рабочей нагрузки (можно 1 ноду)
+  * Для инфраструктурных сервисов (также хватит и 1 ноды)
+* Для инфраструктурной ноды/нод добавьте taint, запрещающий на нее планирование подов с посторонней нагрузкой - node-role=infra:NoSchedule
+* Установите в кластер ArgoCD с помощью Helm-чарта
+  * Необходимо сконфигурировать параметры установки так, чтобы компоненты argoCD устанавливались исключительно на infra-ноды (добавить соответствующий toleration для обхода taint, а также nodeSelector или nodeAffinity на ваш выбор, для планирования подов только на заданные ноды)
+  * Приложите к ДЗ values.yaml конфигурации установки ArgoCD и команду самой установки чарта
+* Создайте project с именем Otus
+  * В качестве Source-репозитория укажите ваш репозиторий с ДЗ курса
+  * В качестве Destination должен быть указан ваш кластер, в который установлен ArgoCD
+  * Приложите манифест, описывающий project к ДЗ
+* Создайте приложение ArgoCD
+  * В качестве репозитория укажите ваше приложение из ДЗ kubernetes-networks
+  * Sync policy – manual
+  * Namespace - homework
+  * Проект – Otus. Убедитесь, что есть необходимые настройки, для создания и установки в namespace, который описан в ДЗ kubernetes-networks
+  * Убедитесь, что nodeSelector позволяет установить приложение на одну из нод кластера
+  * Приложите манифест, описывающий установку приложения к результатам ДЗ
+* Создайте приложение ArgoCD
+  * В качестве репозитория укажите ваше приложение из ДЗ kubernetes-templating
+  * Укажите директорию, в которой находится ваш helm-чарт, который вы разрабатывали самостоятельно
+  * SyncPolicy – Auto, AutoHeal – true, Prune – true.
+  * Проект – Otus.
+  * Namespace – HomeworkHelm. Убедитесь, что установка чарта будет остуществляться в отличный от первого приложения namespace.
+  * Параметр, задающий количество реплик запускаемого приложения должен переопределяться в конфигурации
+  * Приложите манифест, описывающий установку приложения к результатам ДЗ
+
+#### Выполнение задания
+
+Managed Service for Kubernetes в Yandex.Cloud был создан и настроен, как в ДЗ№ 8.
+
+Установка [ArgoCD](https://github.com/argoproj/argo-helm/tree/main) с помощью Helm-чарта:
+```bash
+cd argocd && helmfile apply; cd ..
+```
+
+Проверить, что поды запущены:
+```bash
+kubectl get po --namespace default -o wide
+```
+
+Получение пароля от аккаунта администратора (admin):
+```bash
+kubectl exec -it service/argocd-server argocd admin initial-password
+```
+
+Получение доступа к web-интерфейсу ArgoCD, который буде доступен [здесь](https://127.0.0.1:8090/login):
+```bash
+kubectl port-forward service/argocd-server 8090:80
+```
+
+Выполнение команд argocd в консоли:
+```bash
+kubectl exec -it service/argocd-server /bin/bash
+argocd login localhost:8080
+# Список проектов
+argocd proj list
+# Подробная информация о проекте в yaml-формате
+argocd proj get otus -o yaml
+```
+
+Чтобы приложение kubernetes-networks развернулось, необходимо присвоить ноде метку:
+```bash
+kubectl create ns homework
+kubectl label nodes cl1r15d5nku01d90c062-ezyt homework=true
+```

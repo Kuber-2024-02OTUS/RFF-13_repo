@@ -1,0 +1,38 @@
+metadata:
+  creationTimestamp: "2024-05-31T18:31:06Z"
+  generation: 6
+  managedFields:
+  - apiVersion: argoproj.io/v1alpha1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:spec:
+        .: {}
+        f:clusterResourceWhitelist: {}
+        f:description: {}
+        f:destinations: {}
+        f:namespaceResourceWhitelist: {}
+        f:sourceRepos: {}
+      f:status: {}
+    manager: argocd-server
+    operation: Update
+    time: "2024-05-31T19:10:42Z"
+  name: otus
+  namespace: default
+  resourceVersion: "1835006"
+  uid: 2ef87b55-5287-4749-a7d6-ea8732314422
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: Homework 10
+  destinations:
+  - name: '*'
+    namespace: '*'
+    server: https://kubernetes.default.svc
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  sourceRepos:
+  - https://github.com/Kuber-2024-02OTUS/RFF-13_repo
+status: {}
+
