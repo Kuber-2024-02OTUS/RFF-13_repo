@@ -260,6 +260,7 @@ mysql -h 127.0.0.1 -P 3306 -u root -psecret
 [Собственные CRD в Kubernetes](https://habr.com/ru/companies/otus/articles/787790/)
 [Представляем shell-operator: создавать операторы для Kubernetes стало ещё проще](https://habr.com/ru/companies/flant/articles/447442/)
 
+
 ### ДЗ№ 10
 
 #### Задание
