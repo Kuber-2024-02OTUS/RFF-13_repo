@@ -414,11 +414,20 @@ kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
 kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
-Создание политики (зайти на vault-0):
+~~Создание политики (зайти на vault-0)~~:
 ```bash
 vault login
 vault policy write otus-policy - <<EOH
 path "otus/cred" {
+  capabilities = ["read", "list"]
+}
+EOH
+```
+
+Команда выше не заработает, так как нужно явно указывать data:
+```bash
+vault policy write otus-policy - <<EOH
+path "otus/data/cred" {
   capabilities = ["read", "list"]
 }
 EOH
@@ -448,4 +457,14 @@ kubectl apply -f SecretStore.yaml
 Создание [ExternalSecret](https://external-secrets.io/v0.5.2/api-externalsecret/):
 ```bash
 kubectl apply -f ExternalSecret.yaml
+```
+
+Траблшутинг ExternalSecret:
+```bash
+kubectl logs external-secrets-c5c4df7cf-llrfg --follow -n vault
+```
+
+Проверка ExternalSecret на работоспособность:
+```bash
+kubectl get secrets -n vault
 ```
