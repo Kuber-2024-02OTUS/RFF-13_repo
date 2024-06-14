@@ -334,3 +334,138 @@ argocd proj get otus -o yaml
 kubectl create ns homework
 kubectl label nodes cl1r15d5nku01d90c062-ezyt homework=true
 ```
+
+### ДЗ№ 11
+
+#### Задание
+
+* Данное задание будет выполняться в managed k8s в Yandex cloud
+* Разверните managed Kubernetes cluster в Yandex cloud любым удобным вам способом. Создайте 3 ноды для кластера
+* В namespace consul установите consul из helm-чарта https://github.com/hashicorp/consul-k8s.git с параметрами 3 реплики для сервера. Приложите команду установки чарта и файл с переменными к результатам ДЗ.
+* В namespace vault установите hashicorp vault из helm-чарта https://github.com/hashicorp/vault-helm.git
+  * Сконфигурируйте установку для использования ранее установленного consul в HA режиме
+  * Приложите команду установки чарта и файл с переменными к результатам ДЗ.
+* Выполните инициализацию vault и распечатайте с помощью полученного unseal key все поды хранилища
+* Создайте хранилище секретов otus/ с Secret Engine KV, а в нем секрет otus/cred, содержащий username='otus' password='asajkjkahs’
+* В namespace vault создайте serviceAccount с именем vault-auth и ClusterRoleBinding для него с ролью system:auth-delegator. Приложите получившиеся манифесты к результатам ДЗ
+* В Vault включите авторизацию auth/kubernetes и сконфигурируйте ее используя токен и сертификат ранее созданного ServiceAccount
+* Создайте и примените политику otus-policy для секретов /otus/cred с capabilities = [“read”, “list”]. Файл .hcl с политикой приложите к результатам ДЗ
+* Создайте роль auth/kubernetes/role/otus в vault с использованием ServiceAccount vault-auth из namespace Vault и политикой otus-policy
+* Установите External Secrets Operator из helm-чарта в namespace vault. Команду установки чарта и файл с переменными, если вы их используете приложите к результатам ДЗ
+* Создайте и примените манифест crd объекта SecretStore в namespace vault, сконфигурированный для доступа к KV секретам Vault с использованием ранее созданной роли otus и сервис аккаунта vault-auth. Убедитесь, что созданный SecretStore успешно подключился к vault. Получившийся манифест приложите к результатам ДЗ.
+* Создайте и примените манифест crd объекта ExternalSecret с следующими параметрами:
+  * ns – vault
+  * SecretStore – созданный на прошлом шаге
+  * Target.name = otus-cred
+  * Получает значения KV секрета /otus/cred из vault и отображает их в два ключа – username и password соответственно
+* Убедитесь, что после применения ExternalSecret будет создан Secret в ns vault с именем otus-cred и хранящий в себе 2 ключа username и password, со значениями, которые были сохранены ранее в vault. Добавьте манифест объекта ExternalSecret к результатам ДЗ.
+
+#### Выполнение задания
+
+Создать ёще одну ноду в кластере.
+
+Убрать taint:
+```bash
+kubectl taint nodes cl1qd6m81k72dk3u4sv4-ereg node-role=infra:NoSchedule-
+```
+
+Установить consul и vault (через VPN):
+```bash
+cd consul && helmfile apply; cd ..
+cd vault && helmfile apply; cd ..
+```
+
+При возникновении ошибки запуска, если ноды были оффлайн более недели, смотри [тут](https://www.ibm.com/support/pages/consul-pod-fails-start).
+
+Далее необходимо выполнить инициализацию vault:
+```bash
+kubectl exec -it vault-0 -n vault /bin/sh
+vault operator init --key-shares=1 --key-threshold=1
+vault operator unseal
+```
+
+Unseal Key и Initial Root Token нужно сохранить.
+
+На всех остальных подах vault тоже нужно выполнить команду `vault operator unseal`, введя Unseal Key.
+
+Чтобы зайти в веб-интерфейс, нужно прокинуть порт:
+```bash
+kubectl port-forward vault-0 -n vault 8200:8200
+```
+
+Далее в веб-интерфейсе делаем, что требуется по заданию.
+```bash
+vault secrets enable -path otus/ kv-v2
+vault kv put otus/cred 'username=otus'
+vault kv patch otus/cred 'password=asajkjkahs'
+```
+
+Для создания сервисного аккаунта и роли:
+```bash
+kubectl apply -f sa.yaml -f crb.yaml
+```
+
+Включение аутентификации через k8s (зайти на vault-0):
+```bash
+vault auth enable kubernetes
+
+vault write auth/kubernetes/config \
+token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
+kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+```
+
+~~Создание политики (зайти на vault-0)~~:
+```bash
+vault login
+vault policy write otus-policy - <<EOH
+path "otus/cred" {
+  capabilities = ["read", "list"]
+}
+EOH
+```
+
+Команда выше не заработает, так как нужно явно указывать data:
+```bash
+vault policy write otus-policy - <<EOH
+path "otus/data/cred" {
+  capabilities = ["read", "list"]
+}
+EOH
+```
+
+Создание роли:
+```bash
+vault write auth/kubernetes/role/otus \
+bound_service_account_names=vault-auth \
+bound_service_account_namespaces=vault \
+policies=otus-policy \
+ttl=72h
+
+vault read auth/kubernetes/role/otus
+```
+
+Установка [External Secrets Operator](https://external-secrets.io/latest/):
+```bash
+cd external-secrets && helmfile apply; cd ..
+```
+
+Создание [SecretStore](https://external-secrets.io/v0.5.2/api-secretstore/):
+```bash
+kubectl apply -f SecretStore.yaml
+```
+
+Создание [ExternalSecret](https://external-secrets.io/v0.5.2/api-externalsecret/):
+```bash
+kubectl apply -f ExternalSecret.yaml
+```
+
+Траблшутинг ExternalSecret:
+```bash
+kubectl logs external-secrets-c5c4df7cf-llrfg --follow -n vault
+```
+
+Проверка ExternalSecret на работоспособность:
+```bash
+kubectl get secrets -n vault
+```

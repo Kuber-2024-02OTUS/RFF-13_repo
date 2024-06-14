@@ -1,0 +1,12 @@
+---
+repositories:
+- name: hashicorp
+  url: https://helm.releases.hashicorp.com
+
+releases:
+- name: consul
+  namespace: consul
+  chart: hashicorp/consul
+  version: 1.4.3
+  values: 
+    - values.yaml
