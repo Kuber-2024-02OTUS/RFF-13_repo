@@ -480,9 +480,20 @@ cd deploy-kubernetes
 kubectl create -f provisioner.yaml
 kubectl create -f driver.yaml
 kubectl create -f csi-s3.yaml
+cd ..
 ```
 
 Создание StorageClass:
 ```bash
 kubectl create -f storageClass.yaml
+```
+
+Создание PVC:
+```bash
+kubectl create -f pvc.yaml
+```
+
+Проверка того, что PVC забиндился:
+```bash
+kubectl get pvc csi-s3-pvc
 ```
