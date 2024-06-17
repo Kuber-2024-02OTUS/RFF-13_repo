@@ -476,5 +476,13 @@ kubectl apply -f secret.yaml
 
 Установка CSI driver из [репозитория](https://github.com/yandex-cloud/k8s-csi-s3):
 ```bash
+cd deploy-kubernetes
+kubectl create -f provisioner.yaml
+kubectl create -f driver.yaml
+kubectl create -f csi-s3.yaml
+```
 
+Создание StorageClass:
+```bash
+kubectl create -f storageClass.yaml
 ```
