@@ -467,6 +467,8 @@ kubectl apply -f ExternalSecret.yaml
 
 #### Выполнение задания
 
+При настройке S3, не забудьте добавить пользователя с нужными правами в разделе Права доступа.
+
 Почти все шаги ДЗ можно посмотреть [тут](https://github.com/yandex-cloud/k8s-csi-s3).
 
 Про создание secret можно посмотреть [тут](https://github.com/aws-samples/machine-learning-using-k8s/blob/master/docs/aws-creds-secret.md), создать командой:
@@ -483,7 +485,7 @@ kubectl create -f csi-s3.yaml
 cd ..
 ```
 
-Создание StorageClass:
+Создание StorageClass (отредактировать файл в соответствии с [этим разделом](https://github.com/yandex-cloud/k8s-csi-s3?tab=readme-ov-file#bucket)):
 ```bash
 kubectl create -f storageClass.yaml
 ```
@@ -497,3 +499,24 @@ kubectl create -f pvc.yaml
 ```bash
 kubectl get pvc csi-s3-pvc
 ```
+
+Вывод должен быть примерно таким:
+```plain
+NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             VOLUMEATTRIBUTESCLASS   AGE
+csi-s3-pvc   Bound    pvc-13d8632f-04fb-413a-a4ca-45aba3965010   5Gi        RWX            csi-s3-existing-bucket   <unset>                 9m1s
+```
+
+Запуск тестового пода:
+```bash
+kubectl apply -f pod.yaml
+```
+
+Проверка того, что файлы успешно создаются:
+```bash
+kubectl exec -ti csi-s3-test-nginx bash
+mount | grep fuse
+# loki-logs-course on /usr/share/nginx/html/s3 type fuse.geesefs (rw,nosuid,nodev,relatime,user_id=65534,group_id=0,default_permissions,allow_other)
+touch /usr/share/nginx/html/s3/hello_world
+```
+
+Результат создания файла можно посмотреть в веб-интерфейсе бакета.
