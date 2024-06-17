@@ -467,7 +467,14 @@ kubectl apply -f ExternalSecret.yaml
 
 #### Выполнение задания
 
+Почти все шаги ДЗ можно посмотреть [тут](https://github.com/yandex-cloud/k8s-csi-s3).
+
 Про создание secret можно посмотреть [тут](https://github.com/aws-samples/machine-learning-using-k8s/blob/master/docs/aws-creds-secret.md), создать командой:
 ```bash
 kubectl apply -f secret.yaml
+```
+
+Установка CSI driver из [репозитория](https://github.com/yandex-cloud/k8s-csi-s3):
+```bash
+
 ```
