@@ -260,6 +260,7 @@ mysql -h 127.0.0.1 -P 3306 -u root -psecret
 [Собственные CRD в Kubernetes](https://habr.com/ru/companies/otus/articles/787790/)
 [Представляем shell-operator: создавать операторы для Kubernetes стало ещё проще](https://habr.com/ru/companies/flant/articles/447442/)
 
+
 ### ДЗ№ 10
 
 #### Задание
@@ -414,11 +415,20 @@ kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
 kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 ```
 
-Создание политики (зайти на vault-0):
+~~Создание политики (зайти на vault-0)~~:
 ```bash
 vault login
 vault policy write otus-policy - <<EOH
 path "otus/cred" {
+  capabilities = ["read", "list"]
+}
+EOH
+```
+
+Команда выше не заработает, так как нужно явно указывать data:
+```bash
+vault policy write otus-policy - <<EOH
+path "otus/data/cred" {
   capabilities = ["read", "list"]
 }
 EOH
@@ -520,3 +530,13 @@ touch /usr/share/nginx/html/s3/hello_world
 ```
 
 Результат создания файла можно посмотреть в веб-интерфейсе бакета.
+
+Траблшутинг ExternalSecret:
+```bash
+kubectl logs external-secrets-c5c4df7cf-llrfg --follow -n vault
+```
+
+Проверка ExternalSecret на работоспособность:
+```bash
+kubectl get secrets -n vault
+```
