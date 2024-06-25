@@ -460,6 +460,77 @@ kubectl apply -f SecretStore.yaml
 kubectl apply -f ExternalSecret.yaml
 ```
 
+### ДЗ№ 12
+
+#### Задание
+
+* Данное задание будет выполняться в managed k8s в Yandex cloud
+* Разверните managed Kubernetes cluster в Yandex cloud любым удобным вам способом, конфигурация нод не имеет значения
+* Создайте бакет в s3 object storage Yandex cloud. Он будет использоваться для монтирования volume внутрь подов.
+* Создайте ServiceAccount для доступа к бакету с правами, которые необходимы согласно инструкции YC и сгенерируйте ключи доступа.
+* Создайте secret c ключами для доступа к Object Storage и приложите манифест для проверки ДЗ
+* Создайте storageClass описывающий класс хранилища и приложите манифест для проверки ДЗ
+* Установите CSI driver из репозитория
+* Создайте манифест PVC, использующий для хранения созданный вами storageClass с механизмом autoProvisioning и приложите его для проверки ДЗ
+* Создайте манифест pod или deployment, использующий созданный ранее PVC в качестве volume и монтирующий его в контейнер пода в произвольную точку монтирования и приложите манифест для проверки ДЗ.
+* Под в процессе работы должен производить запись в примонтированную директорию. Убедитесь, что файлы действительно сохраняются в ObjectStorage.
+
+#### Выполнение задания
+
+При настройке S3, не забудьте добавить пользователя с нужными правами в разделе Права доступа.
+
+Почти все шаги ДЗ можно посмотреть [тут](https://github.com/yandex-cloud/k8s-csi-s3).
+
+Про создание secret можно посмотреть [тут](https://github.com/aws-samples/machine-learning-using-k8s/blob/master/docs/aws-creds-secret.md), создать командой:
+```bash
+kubectl apply -f secret.yaml
+```
+
+Установка CSI driver из [репозитория](https://github.com/yandex-cloud/k8s-csi-s3):
+```bash
+cd deploy-kubernetes
+kubectl create -f provisioner.yaml
+kubectl create -f driver.yaml
+kubectl create -f csi-s3.yaml
+cd ..
+```
+
+Создание StorageClass (отредактировать файл в соответствии с [этим разделом](https://github.com/yandex-cloud/k8s-csi-s3?tab=readme-ov-file#bucket)):
+```bash
+kubectl create -f storageClass.yaml
+```
+
+Создание PVC:
+```bash
+kubectl create -f pvc.yaml
+```
+
+Проверка того, что PVC забиндился:
+```bash
+kubectl get pvc csi-s3-pvc
+```
+
+Вывод должен быть примерно таким:
+```plain
+NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             VOLUMEATTRIBUTESCLASS   AGE
+csi-s3-pvc   Bound    pvc-13d8632f-04fb-413a-a4ca-45aba3965010   5Gi        RWX            csi-s3-existing-bucket   <unset>                 9m1s
+```
+
+Запуск тестового пода:
+```bash
+kubectl apply -f pod.yaml
+```
+
+Проверка того, что файлы успешно создаются:
+```bash
+kubectl exec -ti csi-s3-test-nginx bash
+mount | grep fuse
+# loki-logs-course on /usr/share/nginx/html/s3 type fuse.geesefs (rw,nosuid,nodev,relatime,user_id=65534,group_id=0,default_permissions,allow_other)
+touch /usr/share/nginx/html/s3/hello_world
+```
+
+Результат создания файла можно посмотреть в веб-интерфейсе бакета.
+
 Траблшутинг ExternalSecret:
 ```bash
 kubectl logs external-secrets-c5c4df7cf-llrfg --follow -n vault
