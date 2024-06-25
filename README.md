@@ -557,3 +557,156 @@ kubectl get secrets -n vault
 #### Задание со *
 
 * Выполните команду strace для корневого процесса nginx в рассматриваемом ранее поде. Опишите в результатах ДЗ какие операции необходимо сделать, для успешного выполнения команды, и также приложите ее вывод к результатам ДЗ.
+
+#### Выполнение задания
+
+Задание будет выполняться в [minikube](https://www.linuxtechi.com/how-to-install-minikube-on-debian/).
+
+Создаём и применяем манифест для пода:
+```bash
+kubectl apply -f pod.yaml
+```
+
+Проверяем, что веб-сервер действительно работает. Для этого прокидываем порт:
+```bash
+# kubectl port-forward POD_NAME LOCAL_PORT:REMOTE_POD_PORT
+kubectl port-forward webserver 8080:80
+```
+
+И смотрим [тут](http://127.0.0.1:8080). Если видим "Welcome to nginx!", значит всё хорошо.
+
+Создание отладочного контейнера с доступом к PID пода:
+```bash
+kubectl debug -it -c debugger --image=busybox:latest --target=webserver webserver
+```
+
+Проверка, что доступ к PID есть:
+```palin
+/ # ps aux
+PID   USER     TIME  COMMAND
+    1 root      0:00 nginx: master process nginx -g daemon off;
+    7 101       0:00 nginx: worker process
+   15 root      0:00 sh
+   26 root      0:00 ps aux
+```
+
+Проверка доступа к файловой системе пода:
+```palin
+/ # ls -la /proc/$(pgrep nginx | head -n1)/root/etc/nginx/
+total 48
+drwxr-xr-x    3 root     root          4096 Oct  5  2020 .
+drwxr-xr-x    1 root     root          4096 Jun 25 11:45 ..
+drwxr-xr-x    2 root     root          4096 Oct  5  2020 conf.d
+-rw-r--r--    1 root     root          1007 Apr 21  2020 fastcgi_params
+-rw-r--r--    1 root     root          2837 Apr 21  2020 koi-utf
+-rw-r--r--    1 root     root          2223 Apr 21  2020 koi-win
+-rw-r--r--    1 root     root          5231 Apr 21  2020 mime.types
+lrwxrwxrwx    1 root     root            22 Apr 21  2020 modules -> /usr/lib/nginx/modules
+-rw-r--r--    1 root     root           643 Apr 21  2020 nginx.conf
+-rw-r--r--    1 root     root           636 Apr 21  2020 scgi_params
+-rw-r--r--    1 root     root           664 Apr 21  2020 uwsgi_params
+-rw-r--r--    1 root     root          3610 Apr 21  2020 win-utf
+```
+
+Для запуска tcpdump используем другой образ:
+```bash
+kubectl debug -it -c debugger-tcpdump --image=nicolaka/netshoot:latest --target=webserver webserver
+```
+
+Результат работы команды `tcpdump -nn -i any -e port 80`:
+```plain
+tcpdump: data link type LINUX_SLL2
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on any, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 262144 bytes
+12:02:04.664543 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 80: 127.0.0.1.49744 > 127.0.0.1.80: Flags [S], seq 3083184088, win 65495, options [mss 65495,sackOK,TS val 1037395733 ecr 0,nop,wscale 7], length 0
+12:02:04.664550 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 80: 127.0.0.1.80 > 127.0.0.1.49744: Flags [S.], seq 760988333, ack 3083184089, win 65483, options [mss 65495,sackOK,TS val 1037395733 ecr 1037395733,nop,wscale 7], length 0
+12:02:04.664557 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.49744 > 127.0.0.1.80: Flags [.], ack 1, win 512, options [nop,nop,TS val 1037395733 ecr 1037395733], length 0
+12:02:04.664588 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 537: 127.0.0.1.49744 > 127.0.0.1.80: Flags [P.], seq 1:466, ack 1, win 512, options [nop,nop,TS val 1037395733 ecr 1037395733], length 465: HTTP: GET / HTTP/1.1
+12:02:04.664590 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.80 > 127.0.0.1.49744: Flags [.], ack 466, win 508, options [nop,nop,TS val 1037395733 ecr 1037395733], length 0
+12:02:04.664747 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 310: 127.0.0.1.80 > 127.0.0.1.49744: Flags [P.], seq 1:239, ack 466, win 512, options [nop,nop,TS val 1037395733 ecr 1037395733], length 238: HTTP: HTTP/1.1 200 OK
+12:02:04.664756 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.49744 > 127.0.0.1.80: Flags [.], ack 239, win 511, options [nop,nop,TS val 1037395733 ecr 1037395733], length 0
+12:02:04.665942 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 684: 127.0.0.1.80 > 127.0.0.1.49744: Flags [P.], seq 239:851, ack 466, win 512, options [nop,nop,TS val 1037395735 ecr 1037395733], length 612: HTTP
+12:02:04.665946 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.49744 > 127.0.0.1.80: Flags [.], ack 851, win 507, options [nop,nop,TS val 1037395735 ecr 1037395735], length 0
+12:02:04.676771 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 474: 127.0.0.1.49744 > 127.0.0.1.80: Flags [P.], seq 466:868, ack 851, win 512, options [nop,nop,TS val 1037395745 ecr 1037395735], length 402: HTTP: GET /favicon.ico HTTP/1.1
+12:02:04.676922 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 380: 127.0.0.1.80 > 127.0.0.1.49744: Flags [P.], seq 851:1159, ack 868, win 512, options [nop,nop,TS val 1037395745 ecr 1037395745], length 308: HTTP: HTTP/1.1 404 Not Found
+12:02:04.723972 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.49744 > 127.0.0.1.80: Flags [.], ack 1159, win 512, options [nop,nop,TS val 1037395793 ecr 1037395745], length 0
+12:03:09.733907 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.80 > 127.0.0.1.49744: Flags [F.], seq 1159, ack 868, win 512, options [nop,nop,TS val 1037460802 ecr 1037395793], length 0
+12:03:09.779981 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.49744 > 127.0.0.1.80: Flags [.], ack 1160, win 512, options [nop,nop,TS val 1037460849 ecr 1037460802], length 0
+12:03:10.234543 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.49744 > 127.0.0.1.80: Flags [F.], seq 868, ack 1160, win 512, options [nop,nop,TS val 1037461303 ecr 1037460802], length 0
+12:03:10.234560 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.80 > 127.0.0.1.49744: Flags [.], ack 869, win 512, options [nop,nop,TS val 1037461303 ecr 1037461303], length 0
+12:03:13.363211 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 80: 127.0.0.1.57262 > 127.0.0.1.80: Flags [S], seq 2355406827, win 65495, options [mss 65495,sackOK,TS val 1037464432 ecr 0,nop,wscale 7], length 0
+12:03:13.363223 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 80: 127.0.0.1.80 > 127.0.0.1.57262: Flags [S.], seq 4100574950, ack 2355406828, win 65483, options [mss 65495,sackOK,TS val 1037464432 ecr 1037464432,nop,wscale 7], length 0
+12:03:13.363234 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.57262 > 127.0.0.1.80: Flags [.], ack 1, win 512, options [nop,nop,TS val 1037464432 ecr 1037464432], length 0
+12:03:13.364178 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 543: 127.0.0.1.57262 > 127.0.0.1.80: Flags [P.], seq 1:472, ack 1, win 512, options [nop,nop,TS val 1037464433 ecr 1037464432], length 471: HTTP: GET /qwerty HTTP/1.1
+12:03:13.364201 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.80 > 127.0.0.1.57262: Flags [.], ack 472, win 508, options [nop,nop,TS val 1037464433 ecr 1037464433], length 0
+12:03:13.364363 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 380: 127.0.0.1.80 > 127.0.0.1.57262: Flags [P.], seq 1:309, ack 472, win 512, options [nop,nop,TS val 1037464433 ecr 1037464433], length 308: HTTP: HTTP/1.1 404 Not Found
+12:03:13.364379 lo    In  ifindex 1 00:00:00:00:00:00 ethertype IPv4 (0x0800), length 72: 127.0.0.1.57262 > 127.0.0.1.80: Flags [.], ack 309, win 510, options [nop,nop,TS val 1037464433 ecr 1037464433], length 0
+```
+
+Отладка ноды:
+```bash
+kubectl debug node/minikube -it --image=busybox:latest
+```
+
+Для получения логов узнаем, куда ссылается файл:
+```bash
+ls -la /host/var/log/pods/default_webserver_d46df3fb-86fe-4325-9e96-69c24bf6a8bd/webserver/0.log
+```
+
+Получаем лог пода с nginx (`cat /host/var/lib/docker/containers/937ef05005f548ed33abaa63476cc9635d5c862d29f8b4201b6918594b5ef965/937ef05005f548ed33abaa63476cc9635d5c862d29f8b4201b6918594b5ef965-json.log`):
+```plain
+{"log":"127.0.0.1 - - [25/Jun/2024:20:02:04 +0800] \"GET / HTTP/1.1\" 200 612 \"-\" \"Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\" \"-\"\n","stream":"stdout","t
+ime":"2024-06-25T12:02:04.666106883Z"}
+{"log":"127.0.0.1 - - [25/Jun/2024:20:02:04 +0800] \"GET /favicon.ico HTTP/1.1\" 404 153 \"http://127.0.0.1:8080/\" \"Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0
+\" \"-\"\n","stream":"stdout","time":"2024-06-25T12:02:04.676989093Z"}
+{"log":"2024/06/25 20:02:04 [error] 7#7: *1 open() \"/usr/share/nginx/html/favicon.ico\" failed (2: No such file or directory), client: 127.0.0.1, server: localhost, request: \"GET /favico
+n.ico HTTP/1.1\", host: \"127.0.0.1:8080\", referrer: \"http://127.0.0.1:8080/\"\n","stream":"stderr","time":"2024-06-25T12:02:04.677008983Z"}
+{"log":"2024/06/25 20:03:13 [error] 7#7: *2 open() \"/usr/share/nginx/html/qwerty\" failed (2: No such file or directory), client: 127.0.0.1, server: localhost, request: \"GET /qwerty HTTP
+/1.1\", host: \"127.0.0.1:8080\"\n","stream":"stderr","time":"2024-06-25T12:03:13.364525594Z"}
+{"log":"127.0.0.1 - - [25/Jun/2024:20:03:13 +0800] \"GET /qwerty HTTP/1.1\" 404 153 \"-\" \"Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\" \"-\"\n","stream":"stdo
+ut","time":"2024-06-25T12:03:13.364530849Z"}
+```
+
+Для корректной работы [strace](https://losst.pro/komanda-strace-v-linux) необходимо добавить `--profile`:
+```bash
+kubectl debug -it -c debugger-strace --profile=general --image=nicolaka/netshoot:latest --target=webserver webserver
+```
+
+Далее в отладочном контейнере:
+```plain
+/ # ps aux
+PID   USER     TIME  COMMAND
+    1 root      0:00 nginx: master process nginx -g daemon off;
+    7 bird      0:00 nginx: worker process
+  111 root      0:00 zsh
+  184 root      0:00 ps aux
+```
+
+```plain
+/ # strace -ff -v -p 1
+strace: Process 1 attached
+rt_sigsuspend([], 8
+```
+
+После выполнения команды нужно обновить страницу в браузере (не используя кеш):
+```plain
+/ # strace -ff -v -p 7
+strace: Process 7 attached
+epoll_wait(8, [{events=EPOLLIN, data={u32=2449646049, u64=139915304280545}}], 512, 56836) = 1
+recvfrom(3, "GET / HTTP/1.1\r\nHost: 127.0.0.1:"..., 1024, 0, NULL, NULL) = 494
+stat("/usr/share/nginx/html/index.html", {st_dev=makedev(0, 0xdb), st_ino=679805, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=612, st_atime=1587472992 /* 2020-04-21T12:43:12+0000 */, st_atime_nsec=0, st_mtime=1587472992 /* 2020-04-21T12:43:12+0000 */, st_mtime_nsec=0, st_ctime=1719314138 /* 2024-06-25T11:15:38.572776347+0000 */, st_ctime_nsec=572776347}) = 0
+openat(AT_FDCWD, "/usr/share/nginx/html/index.html", O_RDONLY|O_NONBLOCK) = 11
+fstat(11, {st_dev=makedev(0, 0xdb), st_ino=679805, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=612, st_atime=1587472992 /* 2020-04-21T12:43:12+0000 */, st_atime_nsec=0, st_mtime=1587472992 /* 2020-04-21T12:43:12+0000 */, st_mtime_nsec=0, st_ctime=1719314138 /* 2024-06-25T11:15:38.572776347+0000 */, st_ctime_nsec=572776347}) = 0
+writev(3, [{iov_base="HTTP/1.1 200 OK\r\nServer: nginx/1"..., iov_len=238}], 1) = 238
+sendfile(3, 11, [0] => [612], 612)      = 612
+write(5, "127.0.0.1 - - [25/Jun/2024:21:44"..., 149) = 149
+close(11)                               = 0
+epoll_wait(8, [{events=EPOLLIN, data={u32=2449646049, u64=139915304280545}}], 512, 65000) = 1
+recvfrom(3, "GET /favicon.ico HTTP/1.1\r\nHost:"..., 1024, 0, NULL, NULL) = 445
+openat(AT_FDCWD, "/usr/share/nginx/html/favicon.ico", O_RDONLY|O_NONBLOCK) = -1 ENOENT (No such file or directory)
+gettid()                                = 7
+write(4, "2024/06/25 21:44:58 [error] 7#7:"..., 253) = 253
+writev(3, [{iov_base="HTTP/1.1 404 Not Found\r\nServer: "..., iov_len=155}, {iov_base="<html>\r\n<head><title>404 Not Fou"..., iov_len=100}, {iov_base="<hr><center>nginx/1.18.0</center"..., iov_len=53}], 3) = 308
+write(5, "127.0.0.1 - - [25/Jun/2024:21:44"..., 181) = 181
+epoll_wait(8, 
+```
