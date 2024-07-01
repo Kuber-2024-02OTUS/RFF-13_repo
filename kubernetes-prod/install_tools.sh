@@ -15,6 +15,12 @@ do
   fi
 done
 
+# Disable swap
+for ADDRESS in $ADDRESSES
+do
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=5 yc-user@$ADDRESS "sudo swapoff -a"
+done
+
 # Install containerd
 for ADDRESS in $ADDRESSES
 do
@@ -48,3 +54,15 @@ EOF
     "
 done
 
+# Install kubelet, kubeadm, kubectl
+for ADDRESS in $ADDRESSES
+do
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=5 yc-user@$ADDRESS "curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg; \
+    cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
+EOF
+    sudo apt-get update; \
+    sudo apt-get install -y kubelet kubeadm kubectl; \
+    sudo apt-mark hold kubelet kubeadm kubectl
+    "
+done
