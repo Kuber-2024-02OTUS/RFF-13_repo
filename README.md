@@ -741,11 +741,13 @@ epoll_wait(8,
 
 #### Выполнение задания
 
-Для выполнения задания установить утилиты yc и jq.
+Для выполнения задания установить утилиты `yc` и `jq`.
 
 Про создание и удаление витруальных машин с помощью консольной утилиты `yc` можно почитать [здесь](https://teletype.in/@cameda/ntq8QNHIsG1).
 
 Инструкция по установке [containerd.io](https://www.vitaliy.org/post/7242).
+
+Про установку kubelet, kubeadm и kubectl можно почитать [тут](https://www.vitaliy.org/post/6224) и [тут](https://forum.linuxfoundation.org/discussion/864693/the-repository-http-apt-kubernetes-io-kubernetes-xenial-release-does-not-have-a-release-file).
 
 Чотбы создать виртуальные машины в Яндекс.Облаке, нужно запустить скрипт:
 ```bash
