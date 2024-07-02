@@ -758,3 +758,10 @@ epoll_wait(8,
 ```bash
 ./install_tools.sh
 ```
+
+Потом создаём кластер:
+```bash
+./create_cluster.sh
+```
+
+Чтобы проверить, что все ноды работают, нужно выполнить команду `kubectl get nodes -o wide` и посмотреть, чтобы в колонке STATUS было значение Ready.
