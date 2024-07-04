@@ -15,3 +15,10 @@ ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o ServerAliveInterval=30 y
 # Install Flannel
 scp -o StrictHostKeyChecking=no kube-flannel.yml yc-user@$MASTER_IP:/tmp/kube-flannel.yml
 ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o ServerAliveInterval=30 yc-user@$MASTER_IP 'kubectl apply -f /tmp/kube-flannel.yml'
+
+# Configure worker-node
+ADDRESSES=$(yc compute instance list | grep k8s-node-worker | awk -F'|' '{print $6}' | tr -d ' ')
+for ADDRESS in $ADDRESSES
+do
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 yc-user@$ADDRESS "sudo $KUBEADM_JOIN_CMD"
+done
