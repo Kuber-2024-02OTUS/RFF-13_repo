@@ -6,7 +6,7 @@ ADDRESSES=$(yc compute instance list --format=json | jq -r '.[].network_interfac
 # Check if SSH available
 for ADDRESS in $ADDRESSES
 do
-  CHECK_RESULT=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=5 yc-user@$ADDRESS echo ok 2>&1)
+  CHECK_RESULT=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 yc-user@$ADDRESS echo ok 2>&1)
   if [[ "$CHECK_RESULT" == "ok" ]]; then
     echo "Connection to $ADDRESS is $CHECK_RESULT"
   else
