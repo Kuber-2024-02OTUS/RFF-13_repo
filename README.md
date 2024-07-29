@@ -764,4 +764,11 @@ epoll_wait(8,
 ./create_cluster.sh
 ```
 
-Чтобы проверить, что все ноды работают, нужно выполнить команду `kubectl get nodes -o wide` и посмотреть, чтобы в колонке STATUS было значение Ready.
+Чтобы проверить, что все ноды работают, нужно выполнить команду `kubectl get nodes -o wide` и посмотреть, чтобы в колонке STATUS было значение Ready. Вывод должен быть примерно таким:
+```plain
+NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+master-1   Ready    control-plane   85s   v1.29.7   10.128.0.19   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-1   Ready    <none>          49s   v1.29.7   10.128.0.15   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-2   Ready    <none>          59s   v1.29.7   10.128.0.4    <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-3   Ready    <none>          53s   v1.29.7   10.128.0.26   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+```
