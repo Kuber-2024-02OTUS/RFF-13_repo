@@ -6,7 +6,7 @@ ADDRESSES=$(yc compute instance list --format=json | jq -r '.[].network_interfac
 # Check if SSH available
 for ADDRESS in $ADDRESSES
 do
-  CHECK_RESULT=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 yc-user@$ADDRESS echo ok 2>&1)
+  CHECK_RESULT=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o ConnectTimeout=10 yc-user@$ADDRESS echo ok 2>&1 | grep -v "^Warning: Permanently added")
   if [[ "$CHECK_RESULT" == "ok" ]]; then
     echo "Connection to $ADDRESS is $CHECK_RESULT"
   else
@@ -18,13 +18,13 @@ done
 # Disable swap
 for ADDRESS in $ADDRESSES
 do
-  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=5 yc-user@$ADDRESS "sudo swapoff -a"
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 yc-user@$ADDRESS "sudo swapoff -a"
 done
 
 # Install containerd
 for ADDRESS in $ADDRESSES
 do
-  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o ServerAliveInterval=30 yc-user@$ADDRESS "sudo apt-get update; \
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o ServerAliveInterval=30 yc-user@$ADDRESS "sudo apt-get update; \
   sudo apt-get install -y \
     apt-transport-https \
     ca-certificates \
@@ -57,7 +57,7 @@ done
 # Install kubelet, kubeadm, kubectl
 for ADDRESS in $ADDRESSES
 do
-  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o ServerAliveInterval=30 yc-user@$ADDRESS "curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg; \
+  ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o ServerAliveInterval=30 yc-user@$ADDRESS "curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg; \
     cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
 deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /
 EOF
