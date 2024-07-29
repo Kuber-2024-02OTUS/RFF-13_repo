@@ -749,6 +749,8 @@ epoll_wait(8,
 
 Про установку kubelet, kubeadm и kubectl можно почитать [тут](https://www.vitaliy.org/post/6224) и [тут](https://forum.linuxfoundation.org/discussion/864693/the-repository-http-apt-kubernetes-io-kubernetes-xenial-release-does-not-have-a-release-file).
 
+Про обновление кластера можно почитать [тут](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/#upgrading-control-plane-nodes) и [тут](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/upgrading-linux-nodes/).
+
 Чотбы создать виртуальные машины в Яндекс.Облаке, нужно запустить скрипт:
 ```bash
 ./create_vm.sh
@@ -772,3 +774,19 @@ worker-1   Ready    <none>          49s   v1.29.7   10.128.0.15   <none>        
 worker-2   Ready    <none>          59s   v1.29.7   10.128.0.4    <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
 worker-3   Ready    <none>          53s   v1.29.7   10.128.0.26   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
 ```
+
+Для обновления кластера запускаем скрипт:
+```bash
+./upgrade_nodes.sh
+```
+
+После обновления снова выполним команду `kubectl get nodes -o wide`:
+```plain
+NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+master-1   Ready    control-plane   61m   v1.30.3   10.128.0.19   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-1   Ready    <none>          60m   v1.30.3   10.128.0.15   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-2   Ready    <none>          60m   v1.30.3   10.128.0.4    <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-3   Ready    <none>          60m   v1.30.3   10.128.0.26   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+```
+
+Видим, что кластер успешно обновлён.
