@@ -790,3 +790,38 @@ worker-3   Ready    <none>          60m   v1.30.3   10.128.0.26   <none>        
 ```
 
 Видим, что кластер успешно обновлён.
+
+Для удаления виртуальных машин:
+```bash
+./remove_vm.sh
+```
+
+#### Выполнение задания co *
+
+Для выполнения задания установить утилиты [kubespray](https://github.com/kubernetes-sigs/kubespray), [ansible](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ansible/ansible.md#installing-ansible), [yc](https://yandex.cloud/en/docs/cli/operations/install-cli) и [jq](https://lindevs.com/install-jq-on-ubuntu).
+
+Чотбы создать виртуальные машины в Яндекс.Облаке, нужно запустить скрипт из папки additional_task:
+```bash
+./create_vm.sh
+```
+
+Для успешного разворачивания кластера, достаточно выполнить шаги из [официальной инструкции](https://github.com/kubernetes-sigs/kubespray?tab=readme-ov-file#usage), отредактировав `inventory/mycluster/hosts.yaml` должным образом.
+
+Troubleshooting:
+  * pip install ruamel_yaml
+  * удалить access_ip из inventory
+
+Зайдя на мастер ноду и выполнив `kubectl get nodes -o wide`, должны увидеть примерно следующее:
+```plain
+NAME    STATUS   ROLES           AGE     VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+node1   Ready    control-plane   9m53s   v1.30.3   10.128.0.10   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node2   Ready    <none>          7m56s   v1.30.3   10.128.0.22   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node3   Ready    <none>          7m56s   v1.30.3   10.128.0.34   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node4   Ready    control-plane   9m14s   v1.30.3   10.128.0.30   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node5   Ready    control-plane   8m55s   v1.30.3   10.128.0.32   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+```
+
+Для удаления виртуальных машин:
+```bash
+./remove_vm.sh
+```
