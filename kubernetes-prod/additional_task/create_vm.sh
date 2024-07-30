@@ -8,9 +8,9 @@ for i in 1 2 3
 do
   yc compute instance create \
     --folder-id $FOLDER \
-    --name k8s-node-master-$1 \
+    --name k8s-node-master-$i \
     --description "k8s cluster" \
-    --hostname master-$1 \
+    --hostname master-$i \
     --zone $ZONE \
     --platform standard-v2 \
     --create-boot-disk image-family=ubuntu-2404-lts-oslogin,size=20,type=network-hdd \
