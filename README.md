@@ -710,3 +710,118 @@ writev(3, [{iov_base="HTTP/1.1 404 Not Found\r\nServer: "..., iov_len=155}, {iov
 write(5, "127.0.0.1 - - [25/Jun/2024:21:44"..., 181) = 181
 epoll_wait(8, 
 ```
+
+### ДЗ№ 14
+
+#### Задание
+
+* Для выполнения данного задания вам потребуется создать минимум 4 виртуальных машины в YC следующей конфигурации:
+  * Для master - 1 узел, 2vCPU, 8GB RAM
+  * Для worker – 3 узла, 2vCPU, 8GB RAM
+* Версия создаваемого кластера должна быть на одну ниже чем актуальная версия kubernetes на момент выполнения (т.е если последняя актуальная версия 1.30.x, то ставим 1.29.x)
+* Выполните подготовительные работы на узлах в соответствии с инструкцией (отключить swap, включите маршрутизацию и т.д)
+* Установите containerd, kubeadm, kubelet, kubectl на все ВМ
+* Выполните kubeadm init на мастер-ноде
+* Установите Flannel в качестве сетевого плагина
+* Выполните kubeadm join на воркер нодах
+* Приложите к результатам ДЗ вывод команды kubectl get nodes -o wide, показывающий статус и версию k8s всех нод кластера
+* Приложите к результатам ДЗ все команды, выполненные вами как на мастер, так и на воркер нодах (можно в readme, можно в виде .sh скриптов, или иным образом как вам удобно) для возможности воспроизведения ваших действий
+* Выполните обновление master ноды до последней актуальной версии k8s с помощью kubeadm
+* Последовательно выведите из планирования все воркер-ноды, обновите их до последней актуальной версии и верните в планирование
+* Приложите к результатам ДЗ все команды по обновлению версии кластера, аналогично как вы делали это для команд установки
+* Приложите к результатам ДЗ вывод команды kubectl get nodes -o wide, показывающий статус и версию k8s всех нод кластера после обновления
+
+#### Задание со *
+
+* Создайте минимум 5 нод следующей конфигурации:
+  * Для master - 3 узла, 2vCPU, 8GB RAM
+  * Для worker – минимум 2 узла, 2vCPU, 8GB RAM
+* Разверните отказоустойчивый кластер K8s с помощью kubespray (3 master ноды, минимум 2 worker)
+* К результатам ДЗ приложите inventory файл который вы использовали для создания кластера и вывод команды kubectl get nodes –o wide
+
+#### Выполнение задания
+
+Для выполнения задания установить утилиты `yc` и `jq`.
+
+Про создание и удаление витруальных машин с помощью консольной утилиты `yc` можно почитать [здесь](https://teletype.in/@cameda/ntq8QNHIsG1).
+
+Инструкция по установке [containerd.io](https://www.vitaliy.org/post/7242).
+
+Про установку kubelet, kubeadm и kubectl можно почитать [тут](https://www.vitaliy.org/post/6224) и [тут](https://forum.linuxfoundation.org/discussion/864693/the-repository-http-apt-kubernetes-io-kubernetes-xenial-release-does-not-have-a-release-file).
+
+Про обновление кластера можно почитать [тут](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/#upgrading-control-plane-nodes) и [тут](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/upgrading-linux-nodes/).
+
+Чотбы создать виртуальные машины в Яндекс.Облаке, нужно запустить скрипт:
+```bash
+./create_vm.sh
+```
+
+Далее необходимо установить утилиты containerd, kubeadm, kubelet и kubectl. Для этого можно воспользоваться скриптом (прежде нужно дождаться завершения создания виртуальных машин):
+```bash
+./install_tools.sh
+```
+
+Потом создаём кластер:
+```bash
+./create_cluster.sh
+```
+
+Чтобы проверить, что все ноды работают, нужно выполнить команду `kubectl get nodes -o wide` и посмотреть, чтобы в колонке STATUS было значение Ready. Вывод должен быть примерно таким:
+```plain
+NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+master-1   Ready    control-plane   85s   v1.29.7   10.128.0.19   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-1   Ready    <none>          49s   v1.29.7   10.128.0.15   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-2   Ready    <none>          59s   v1.29.7   10.128.0.4    <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-3   Ready    <none>          53s   v1.29.7   10.128.0.26   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+```
+
+Для обновления кластера запускаем скрипт:
+```bash
+./upgrade_nodes.sh
+```
+
+После обновления снова выполним команду `kubectl get nodes -o wide`:
+```plain
+NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+master-1   Ready    control-plane   61m   v1.30.3   10.128.0.19   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-1   Ready    <none>          60m   v1.30.3   10.128.0.15   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-2   Ready    <none>          60m   v1.30.3   10.128.0.4    <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+worker-3   Ready    <none>          60m   v1.30.3   10.128.0.26   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.19
+```
+
+Видим, что кластер успешно обновлён.
+
+Для удаления виртуальных машин:
+```bash
+./remove_vm.sh
+```
+
+#### Выполнение задания co *
+
+Для выполнения задания установить утилиты [kubespray](https://github.com/kubernetes-sigs/kubespray), [ansible](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ansible/ansible.md#installing-ansible), [yc](https://yandex.cloud/en/docs/cli/operations/install-cli) и [jq](https://lindevs.com/install-jq-on-ubuntu).
+
+Чотбы создать виртуальные машины в Яндекс.Облаке, нужно запустить скрипт из папки additional_task:
+```bash
+./create_vm.sh
+```
+
+Для успешного разворачивания кластера, достаточно выполнить шаги из [официальной инструкции](https://github.com/kubernetes-sigs/kubespray?tab=readme-ov-file#usage), отредактировав `inventory/mycluster/hosts.yaml` должным образом.
+
+Troubleshooting:
+  * pip install ruamel_yaml
+  * удалить access_ip из inventory
+
+Зайдя на мастер ноду и выполнив `kubectl get nodes -o wide`, должны увидеть примерно следующее:
+```plain
+NAME    STATUS   ROLES           AGE     VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+node1   Ready    control-plane   9m53s   v1.30.3   10.128.0.10   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node2   Ready    <none>          7m56s   v1.30.3   10.128.0.22   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node3   Ready    <none>          7m56s   v1.30.3   10.128.0.34   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node4   Ready    control-plane   9m14s   v1.30.3   10.128.0.30   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+node5   Ready    control-plane   8m55s   v1.30.3   10.128.0.32   <none>        Ubuntu 24.04 LTS   6.8.0-39-generic   containerd://1.7.16
+```
+
+Для удаления виртуальных машин:
+```bash
+./remove_vm.sh
+```
